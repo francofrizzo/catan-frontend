@@ -1,6 +1,7 @@
 import { reactive } from "vue";
 
 import * as api from "@/api/actions";
+import * as websocketsApi from "@/api/websocket";
 
 import Action from "@/models/Action";
 import PublicGameState from "@/models/PublicGameState";
@@ -236,8 +237,68 @@ export class GameInterface {
 
   private async create() {
     this.state.gameId = await api.createGame();
-    this.updateState();
-    setInterval(() => this.updateState(), 500);
+    await this.updateState();
+    this.subscribeToPublicUpdates();
+    this.subscribeToAllPrivateUpdates();
+  }
+
+  private setPublicState(newState: PublicGameState) {
+    const oldState = this.publicState;
+    this.state.publicState = newState;
+    if (!oldState || oldState.currentTurn.player === this.activePlayerId) {
+      this.state.activePlayerId = newState.currentTurn.player;
+    }
+  }
+
+  private setPrivateState(playerId: number, newState: PrivateGameState) {
+    this.state.privateState[playerId] = newState;
+    if (
+      playerId === this.activePlayerId &&
+      newState.availableActions.length === 1 &&
+      newState.availableActions[0] === Action.Pass
+    ) {
+      this.executeAction(Action.Pass);
+    }
+  }
+
+  private subscribeToPublicUpdates() {
+    if (this.state.gameId) {
+      websocketsApi.subscribeToPublicUpdates(this.state.gameId, (newState) =>
+        this.setPublicState(newState)
+      );
+    } else {
+      throw new Error(
+        "Cannot subscribe to public game updates: game id is not defined"
+      );
+    }
+  }
+
+  private subscribeToPrivateUpdates(playerId: number) {
+    if (this.state.gameId) {
+      websocketsApi.subscribeToPrivateUpdates(
+        this.state.gameId,
+        playerId,
+        (newState) => this.setPrivateState(playerId, newState)
+      );
+    } else {
+      throw new Error(
+        "Cannot subscribe to public game updates: game id is not defined"
+      );
+    }
+  }
+
+  private async subscribeToAllPrivateUpdates() {
+    if (this.publicState) {
+      await Promise.all(
+        this.publicState.players.map(({ id }) =>
+          this.subscribeToPrivateUpdates(id)
+        )
+      );
+    } else {
+      throw new Error(
+        "Cannot subscribe to private game updates for all players: public game state is not defined"
+      );
+    }
   }
 
   private async updateState() {
@@ -247,12 +308,8 @@ export class GameInterface {
 
   private async updatePublicState() {
     if (this.gameId) {
-      const oldState = this.publicState;
       const newState = await api.getGamePublicState(this.gameId);
-      this.state.publicState = newState;
-      if (!oldState || oldState.currentTurn.player === this.activePlayerId) {
-        this.state.activePlayerId = newState.currentTurn.player;
-      }
+      this.setPublicState(newState);
     } else {
       throw new Error("Cannot get public game state: game id is not defined");
     }
@@ -261,14 +318,7 @@ export class GameInterface {
   private async updatePrivateState(playerId: number) {
     if (this.gameId) {
       const newState = await api.getGamePrivateState(this.gameId, playerId);
-      this.state.privateState[playerId] = newState;
-      if (
-        playerId === this.activePlayerId &&
-        newState.availableActions.length === 1 &&
-        newState.availableActions[0] === Action.Pass
-      ) {
-        this.executeAction(Action.Pass);
-      }
+      this.setPrivateState(playerId, newState);
     } else {
       throw new Error("Cannot get private game state: game id is not defined");
     }
