@@ -1,24 +1,12 @@
 <template>
-  <div class="inactive-player-area">
-    <p><strong>Resource cards:</strong> {{ player.resourcesCount }}</p>
+  <div class="inactive-player-area player-area-subarea">
+    <div class="section resources">
+      <resource-deck :quantity="player.resourcesCount" />
+    </div>
 
-    <h4>Development cards</h4>
-    <ul class="resources">
-      <li v-for="card in player.playedDevelopmentCards" :key="card.id">
-        {{ card.type }}
-      </li>
-      <li>
-        {{ player.developmentCardCount - player.playedDevelopmentCards.length }}
-        not played yet.
-      </li>
-    </ul>
-
-    <h4>Achievement tokens</h4>
-    <ul class="resources">
-      <li v-for="token in player.achievementTokens" :key="token.id">
-        {{ token.type }}
-      </li>
-    </ul>
+    <div class="section development-cards">
+      <development-card-deck :quantity="player.developmentCardCount" />
+    </div>
   </div>
 </template>
 
@@ -27,9 +15,15 @@ import { defineComponent, PropType } from "vue";
 
 import Player from "@/models/Player";
 
+import ResourceDeck from "@/components/Elements/ResourceDeck.vue";
+import DevelopmentCardDeck from "@/components/Elements/DevelopmentCardDeck.vue";
+
 export default defineComponent({
   props: {
     player: { type: Object as PropType<Player>, required: true },
   },
+  components: { ResourceDeck, DevelopmentCardDeck },
 });
 </script>
+
+<style lang="scss"></style>

@@ -1,0 +1,89 @@
+/* Typography */
+
+$font-family: "Playfair Display", Georgia, "Times New Roman", Times, serif;
+
+/* -------------------------------------------------------------------------- */
+
+/* Colors */
+
+$secondary-background-color: #e9e0af;
+
+$light-font-color: #efefef;
+$dark-font-color: #171717;
+$red-font-color: #ab0807;
+
+$player-color-names: (
+  "0": yellow,
+  "1": red,
+  "2": blue,
+  "3": white,
+);
+
+$player-colors: (
+  "0": #ffae44,
+  "1": #f33936,
+  "2": #0058c7,
+  "3": #f5eed5,
+);
+
+$player-light-gradients: (
+  "0": linear-gradient(#ffdea9, #dbb679),
+  "1": linear-gradient(#ffacc0, #d7899c),
+  "2": linear-gradient(#aac7ff, #7a9cde),
+  "3": linear-gradient(#dad6d4, #c0b9b5),
+);
+
+$resource-gradients: (
+  "brick": linear-gradient(#b54c2f, #532319),
+  "grain": linear-gradient(#c79623, #5b4315),
+  "lumber": linear-gradient(#ad5f28, #4c2b16),
+  "ore": linear-gradient(#416d93, #1e3041),
+  "wool": linear-gradient(#8f9840, #3f4420),
+  "unknown": linear-gradient(#8930a4, #431c4f),
+);
+
+$unknown-resource-icon-color: #c757df;
+
+$development-card-gradient: linear-gradient(#2f9354, #1f4d31);
+$development-card-icon-color: #59d88b;
+
+/* -------------------------------------------------------------------------- */
+
+/* Layout */
+
+$player-area-padding: 1.25rem;
+
+/* -------------------------------------------------------------------------- */
+
+/* Element sizes */
+
+$quantity-indicator-size: 1.1rem;
+$quantity-indicator-font-size: 0.8rem;
+
+$card-aspect-ratio: 1.4;
+$card-to-icon-size-proportion: 0.65;
+$card-deck-spacing: 10px;
+
+$resource-card-width: 2.2rem;
+$development-card-width: 2.6rem;
+
+$construction-button-padding: 0.5rem;
+$construction-button-icon-size: 2.4rem;
+
+$board-height: 90vh; // in vh -- this must coincide with boardHeight variable in GameBoard.vue
+$corner-size: 6 * ($board-height / 100);
+$edge-size: 2.75 * ($board-height / 100);
+$port-size: 8.5 * ($board-height / 100);
+$tile-number-size: 6.75 * ($board-height / 100);
+$thief-size: 6.5 * ($board-height / 100);
+
+$current-turn-marker-size: 1.3rem;
+
+$player-picture-size: 3.2rem;
+$player-picture-border-width: 4px;
+
+$dice-size: 40px;
+$dice-distance-x: 64px;
+$dice-distance-y: 32px;
+$dice-canvas-position-x: 130px;
+$dice-canvas-position-y: 80px;

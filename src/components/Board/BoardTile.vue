@@ -6,27 +6,23 @@
     @click="handleClick()"
   >
     <div
-      v-if="tile.hasThief && !movingThief"
-      class="tile-thief"
-      :class="{ movable: canMoveThief }"
-      @click="handleThiefClick()"
-    >
-      <div class="tile-number-inner">X</div>
-    </div>
-    <div
       class="tile-number"
       :class="`tile-number-${probability}`"
-      v-else-if="tile.number"
+      v-if="tile.number"
     >
-      <div class="tile-number-inner">{{ tile.number }}</div>
+      {{ tile.number }}
     </div>
+    <div
+      class="tile-thief"
+      :class="{ movable: canMoveThief && !movingThief }"
+      @click="handleThiefClick()"
+    ></div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 
-import Action from "@/models/Action";
 import Tile from "@/models/Tile";
 
 import game from "@/game";
@@ -37,7 +33,7 @@ export default defineComponent({
   },
   computed: {
     canMoveThief(): boolean {
-      return game.availableActions.includes(Action.MoveThief);
+      return game.availableActions.includes("MoveThief");
     },
     movingThief(): boolean {
       return game.isMovingThief;
@@ -48,6 +44,9 @@ export default defineComponent({
           ? `tile-${this.tile.resource.toLowerCase()}`
           : "tile-desert",
       ];
+      if (this.tile.hasThief && !this.movingThief) {
+        classes.push("has-thief");
+      }
       if (this.movingThief && !this.tile.hasThief) {
         classes.push("moving-thief");
       }
@@ -80,81 +79,80 @@ export default defineComponent({
 .tile {
   background-size: cover;
   position: absolute;
+  @include board-element;
 
   &.moving-thief {
-    cursor: pointer;
-
-    &:hover {
-      opacity: 0.8;
-    }
+    @include board-element-interactive;
   }
 }
 
-@each $tileType in ("desert", "brick", "lumber", "wool", "grain", "ore") {
-  .tile-#{$tileType} {
-    background-image: url("../../assets/tile-#{$tileType}.png");
+@each $tile-type in ("desert", "brick", "lumber", "wool", "grain", "ore") {
+  .tile-#{$tile-type} {
+    background-image: url("../../assets/tile-#{$tile-type}.png");
   }
 }
 
 .tile-number {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -30px;
-  margin-left: -30px;
-  width: 40px;
-  height: 40px;
-  padding: 6px 8px 12px 8px;
-  background-size: cover;
-  background-image: url("../../assets/tile-number.png");
-  background-repeat: no-repeat;
-}
+  @include absolute-center($tile-number-size);
+  border: 1px solid rgba(58, 32, 12, 0.3);
+  background-clip: padding-box;
+  box-shadow: 0 0px 3px rgba(58, 32, 12, 0.5) inset,
+    0 -5px 16px rgba(58, 32, 12, 0.5) inset, 0 3px 4px rgba(0, 0, 0, 0.2);
 
-.tile-number-inner {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Georgia";
+  @include round($tile-number-size);
+  background-image: radial-gradient(
+    change-color($secondary-background-color, $alpha: 0.95) 50%,
+    change-color($secondary-background-color, $alpha: 0.7)
+  );
+  color: $dark-font-color;
+  font-weight: 700;
+  transition: opacity 200ms ease;
+  line-height: $tile-number-size;
+  text-align: center;
 }
 
 .tile-number-1 {
-  font-size: 0.9rem;
+  font-size: 1.7 * ($tile-number-size / 5);
 }
 
 .tile-number-2 {
-  font-size: 1rem;
+  font-size: 2 * ($tile-number-size / 5);
 }
 
 .tile-number-3 {
-  font-size: 1.1rem;
+  font-size: 2.5 * ($tile-number-size / 5);
 }
 
 .tile-number-4 {
-  font-size: 1.25rem;
+  font-size: 3 * ($tile-number-size / 5);
+  font-weight: 700;
 }
 
 .tile-number-5 {
-  font-size: 1.4rem;
-  color: darkred;
+  font-size: 3.5 * ($tile-number-size / 5);
+  color: $red-font-color;
 }
 
 .tile-thief {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -30px;
-  margin-left: -30px;
-  width: 40px;
-  height: 40px;
-  padding: 6px 8px 12px 8px;
-  background-size: cover;
-  background-image: url("../../assets/tile-number.png");
-  background-repeat: no-repeat;
+  @include board-element;
+  @include board-piece-shadow;
+  @include board-piece-image(url("../../assets/thief.png"));
+  @include board-piece-animation;
+  @include absolute-center($thief-size, (4/3) * $thief-size);
+  margin-top: -(5/6) * $thief-size;
 
   &.movable {
-    cursor: pointer;
+    @include board-element-interactive;
+  }
+}
+
+.tile.has-thief,
+.tile.moving-thief:hover {
+  .tile-number {
+    opacity: 0;
+  }
+  .tile-thief {
+    @include board-piece-animation-active;
   }
 }
 </style>

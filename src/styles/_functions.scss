@@ -1,0 +1,13 @@
+@function color-yiq($background-color, $dark-color, $light-color) {
+  $r: red($background-color);
+  $g: green($background-color);
+  $b: blue($background-color);
+
+  $yiq: (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+
+  @if ($yiq >= 150) {
+    @return $dark-color;
+  } @else {
+    @return $light-color;
+  }
+}

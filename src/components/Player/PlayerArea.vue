@@ -1,29 +1,39 @@
 <template>
   <div
     class="player-area"
-    :class="[`player-${player.id}`, { active: isActive }]"
+    :class="[
+      `player-area-${player.id}`,
+      `player-area-${position}`,
+      { active: isActive },
+    ]"
   >
-    <h3>{{ player.name }}</h3>
-
+    <player-header :player="player" />
     <active-player-area v-if="isActive" :player="player" />
     <inactive-player-area v-else :player="player" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
 
 import Player from "@/models/Player";
 
 import game from "@/game";
 
+import PlayerHeader from "@/components/Player/PlayerHeader.vue";
 import ActivePlayerArea from "@/components/Player/ActivePlayerArea.vue";
 import InactivePlayerArea from "@/components/Player/InactivePlayerArea.vue";
 
 export default defineComponent({
-  components: { ActivePlayerArea, InactivePlayerArea },
+  components: { PlayerHeader, ActivePlayerArea, InactivePlayerArea },
   props: {
     playerId: { type: Number, required: true },
+    position: {
+      type: String as PropType<
+        "top-left" | "top-right" | "bottom-left" | "bottom-right"
+      >,
+      required: true,
+    },
   },
   computed: {
     player(): Player {
@@ -37,23 +47,53 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-$players: (
-  "0": yellow,
-  "1": red,
-  "2": blue,
-  "3": white,
-);
 .player-area {
-  @each $player, $color in $players {
-    &.player-#{$player} h3::before {
-      content: "";
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      margin-right: 0.5rem;
-      display: inline-block;
-      background-color: $color;
-    }
+  display: flex;
+  justify-content: start;
+  height: 100%;
+
+  &.player-area-top-left,
+  &.player-area-top-right {
+    flex-direction: column;
+  }
+
+  &.player-area-bottom-left,
+  &.player-area-bottom-right {
+    flex-direction: column-reverse;
+  }
+
+  &.player-area-top-left,
+  &.player-area-bottom-left {
+    text-align: left;
+  }
+
+  &.player-area-top-right,
+  &.player-area-bottom-right {
+    text-align: right;
+  }
+}
+
+.player-area-subarea {
+  display: flex;
+
+  .section {
+    margin: 0.6rem 0;
+  }
+}
+
+.player-area-top-left,
+.player-area-top-right {
+  .player-area-subarea {
+    flex-direction: column;
+    padding-top: 0.6rem;
+  }
+}
+
+.player-area-bottom-left,
+.player-area-bottom-right {
+  .player-area-subarea {
+    flex-direction: column-reverse;
+    padding-bottom: 0.6rem;
   }
 }
 </style>

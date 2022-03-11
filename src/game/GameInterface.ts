@@ -1,9 +1,12 @@
 import { reactive } from "vue";
+import toastr from "toastr";
+import axios from "axios";
 
 import * as api from "@/api/actions";
 import * as websocketsApi from "@/api/websocket";
+import { getErrorMessage } from "@/api/errorMessages";
 
-import Action from "@/models/Action";
+import Action, { ActionArguments } from "@/models/Action";
 import PublicGameState from "@/models/PublicGameState";
 import PrivateGameState from "@/models/PrivateGameState";
 import PrivatePlayerState from "@/models/PrivatePlayerState";
@@ -59,11 +62,11 @@ export class GameInterface {
   }
 
   public async rollDice(): Promise<void> {
-    await this.executeAction(Action.RollDice);
+    await this.executeAction("RollDice");
   }
 
   public async pass(): Promise<void> {
-    await this.executeAction(Action.Pass);
+    await this.executeAction("Pass");
   }
 
   public startBuildingSettlement(): void {
@@ -75,8 +78,8 @@ export class GameInterface {
   }
 
   public async buildSettlement(cornerId: number): Promise<void> {
-    await this.executeAction(Action.BuildSettlement, { corner: cornerId });
     this.state.boardState = "normal";
+    await this.executeAction("BuildSettlement", { corner: cornerId });
   }
 
   public startBuildingCity(): void {
@@ -88,8 +91,8 @@ export class GameInterface {
   }
 
   public async buildCity(cornerId: number): Promise<void> {
-    await this.executeAction(Action.BuildCity, { corner: cornerId });
     this.state.boardState = "normal";
+    await this.executeAction("BuildCity", { corner: cornerId });
   }
 
   public startBuildingRoad(): void {
@@ -101,24 +104,24 @@ export class GameInterface {
   }
 
   public async buildRoad(cornerIds: [number, number]): Promise<void> {
-    await this.executeAction(Action.BuildRoad, { corners: cornerIds });
     this.state.boardState = "normal";
+    await this.executeAction("BuildRoad", { corners: cornerIds });
   }
 
   public async collectResource(resource: Resource): Promise<void> {
-    await this.executeAction(Action.Collect, { resources: { [resource]: 1 } });
+    await this.executeAction("Collect", { resources: { [resource]: 1 } });
   }
 
   public async discardResource(resource: Resource): Promise<void> {
-    await this.executeAction(Action.Discard, { resources: { [resource]: 1 } });
+    await this.executeAction("Discard", { resources: { [resource]: 1 } });
   }
 
   public async buyDevelopmentCard(): Promise<void> {
-    await this.executeAction(Action.BuyDevelopmentCard);
+    await this.executeAction("BuyDevelopmentCard");
   }
 
   public async playDevelopmentCard(cardId: number): Promise<void> {
-    await this.executeAction(Action.PlayDevelopmentCard, { card: cardId });
+    await this.executeAction("PlayDevelopmentCard", { card: cardId });
   }
 
   public startMovingThief(): void {
@@ -133,11 +136,11 @@ export class GameInterface {
     tileId: number,
     stealFromPlayerId: number | null = null
   ): Promise<void> {
-    await this.executeAction(Action.MoveThief, {
+    this.state.boardState = "normal";
+    await this.executeAction("MoveThief", {
       tile: tileId,
       stealFrom: stealFromPlayerId,
     });
-    this.state.boardState = "normal";
   }
 
   public get actions(): {
@@ -146,7 +149,7 @@ export class GameInterface {
     const availableActions = this.availableActions;
     return {
       Exchange: {
-        available: availableActions.includes(Action.Exchange),
+        available: availableActions.includes("Exchange"),
         args: [
           ["otherPlayer", "number"],
           [
@@ -172,7 +175,7 @@ export class GameInterface {
         ],
       },
       Trade: {
-        available: availableActions.includes(Action.Trade),
+        available: availableActions.includes("Trade"),
         args: [
           ["resourceGiven", "string"],
           ["resourceTaken", "string"],
@@ -181,7 +184,10 @@ export class GameInterface {
     };
   }
 
-  public async executeAction(actionKey: Action, args: any = {}) {
+  public async executeAction<A extends Action>(
+    actionKey: A,
+    args: ActionArguments<A> = {}
+  ) {
     if (this.gameId) {
       try {
         await api.executeGameAction(
@@ -191,7 +197,18 @@ export class GameInterface {
           args
         );
       } catch (err: any) {
-        throw Error(err.response.data);
+        if (axios.isAxiosError(err)) {
+          let errorMessage = "¡Ups! Algo salió mal.";
+          if (err.response?.data) {
+            const match = (err.response?.data as string).match(
+              /^Error (executing action: |parsing arguments)Error: (.*)/
+            );
+            if (match) {
+              errorMessage = getErrorMessage(match[2]);
+            }
+          }
+          toastr.error(errorMessage);
+        }
       }
     } else {
       throw new Error("Cannot execute action: game id is not defined");
@@ -246,18 +263,24 @@ export class GameInterface {
     const oldState = this.publicState;
     this.state.publicState = newState;
     if (!oldState || oldState.currentTurn.player === this.activePlayerId) {
-      this.state.activePlayerId = newState.currentTurn.player;
+      this.switchActivePlayer(newState.currentTurn.player);
     }
   }
 
-  private setPrivateState(playerId: number, newState: PrivateGameState) {
+  private async setPrivateState(playerId: number, newState: PrivateGameState) {
     this.state.privateState[playerId] = newState;
     if (
       playerId === this.activePlayerId &&
-      newState.availableActions.length === 1 &&
-      newState.availableActions[0] === Action.Pass
+      newState.availableActions.length === 1
     ) {
-      this.executeAction(Action.Pass);
+      const onlyAvailableAction = newState.availableActions[0];
+      if (onlyAvailableAction === "Pass") {
+        await this.executeAction("Pass");
+      } else if (onlyAvailableAction === "BuildRoad") {
+        this.startBuildingRoad();
+      } else if (onlyAvailableAction === "BuildSettlement") {
+        this.startBuildingSettlement();
+      }
     }
   }
 
@@ -318,7 +341,7 @@ export class GameInterface {
   private async updatePrivateState(playerId: number) {
     if (this.gameId) {
       const newState = await api.getGamePrivateState(this.gameId, playerId);
-      this.setPrivateState(playerId, newState);
+      await this.setPrivateState(playerId, newState);
     } else {
       throw new Error("Cannot get private game state: game id is not defined");
     }

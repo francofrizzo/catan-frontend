@@ -1,14 +1,5 @@
 <template>
-  <div class="corner" :class="className" @click="handleClick()">
-    <template v-if="corner.port">
-      {{ corner.port.exchangeRate
-      }}{{
-        corner.port.accepts.length > 1
-          ? "❓"
-          : getResourceIcon(corner.port.accepts[0])
-      }}
-    </template>
-  </div>
+  <div class="corner" :class="className" @click="handleClick()"></div>
 </template>
 
 <script lang="ts">
@@ -75,42 +66,45 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-$players: (
-  "0": yellow,
-  "1": red,
-  "2": blue,
-  "3": white,
-);
-
 .corner {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  margin-top: -15px;
-  margin-left: -15px;
+  @include board-element;
+  @include absolute-center($corner-size);
+  @include board-piece-shadow;
+
+  &.corner-building-settlement,
+  &.corner-building-city {
+    @include board-element-interactive;
+  }
 
   &.corner-settlement,
-  &.corner-building-settlement {
-    border-radius: 50%;
+  &.corner-building-settlement,
+  &.corner-city,
+  &.corner-building-city {
+    @include board-piece-animation;
+  }
+
+  &.corner-settlement,
+  &.corner-building-settlement:hover {
+    @include board-piece-animation-active(90%);
   }
 
   &.corner-city,
   &.corner-building-city:hover {
-    border-radius: 0;
+    @include board-piece-animation-active;
   }
 
-  &.corner-building-settlement,
-  &.corner-building-city {
-    cursor: pointer;
-  }
-
-  @each $player, $color in $players {
+  @each $player, $color-name in $player-color-names {
     &.corner-player-#{$player} {
       &.corner-settlement,
-      &.corner-building-settlement:hover,
+      &.corner-building-settlement {
+        @include board-piece-image(
+          url("../../assets/settlement-#{$color-name}.png")
+        );
+      }
+
       &.corner-city,
       &.corner-building-city:hover {
-        background-color: $color;
+        @include board-piece-image(url("../../assets/city-#{$color-name}.png"));
       }
     }
   }

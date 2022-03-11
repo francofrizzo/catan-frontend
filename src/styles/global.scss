@@ -1,0 +1,41 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(#633f44, #1d1315);
+}
+
+#app {
+  font-family: $font-family;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "lnum";
+  color: $light-font-color;
+  user-select: none;
+}
+
+button {
+  @include pillow;
+  font-family: $font-family;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(110%);
+  }
+
+  &:disabled {
+    @include disabled;
+  }
+}
+
+.quantity-indicator {
+  @include pillow;
+  @include round($quantity-indicator-size);
+  font-size: $quantity-indicator-font-size;
+  line-height: $quantity-indicator-size;
+  text-align: center;
+  color: $dark-font-color;
+  font-weight: 600;
+  background-color: $secondary-background-color;
+}

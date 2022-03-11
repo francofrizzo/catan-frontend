@@ -1,5 +1,6 @@
 <template>
   <div class="board" :style="boardStyle">
+    <div class="board-background"></div>
     <tile
       v-for="tile in tiles"
       :key="`tile:${tile.id}`"
@@ -12,6 +13,7 @@
       :corners="edge.corners"
       :road="edge.road"
       :style="edge.style"
+      :direction="edge.direction"
     />
     <corner
       v-for="corner in corners"
@@ -40,10 +42,10 @@ export type BoardMode = "default" | "building-settlement";
 const mod = (n: number, m: number): number => ((n % m) + m) % m;
 
 const tileAspectRatio = Math.sqrt(4 / 3);
-const tileWidth = 150;
-const tileHeight = tileWidth * tileAspectRatio;
-const boardHeight = tileHeight * 4.65662;
+const boardHeight = 90; // in vh -- this should coincide with sass variable $board-height
 const boardWidth = boardHeight * tileAspectRatio;
+const tileWidth = boardHeight * 0.185977255;
+const tileHeight = tileWidth * tileAspectRatio;
 
 type VectorInPolarCoordinates = { angle: number; distance: number };
 const polarToRectangular = ({
@@ -140,8 +142,8 @@ export default defineComponent({
     },
     boardStyle(): Record<string, string> {
       return {
-        width: `${boardWidth}px`,
-        height: `${boardHeight}px`,
+        width: `${boardWidth}vh`,
+        height: `${boardHeight}vh`,
         position: "relative",
       };
     },
@@ -150,12 +152,12 @@ export default defineComponent({
         return {
           ...tile,
           style: {
-            width: `${tileWidth}px`,
-            height: `${tileHeight}px`,
-            marginLeft: `-${tileWidth / 2}px`,
-            marginTop: `-${tileHeight / 2}px`,
-            left: `${boardWidth / 2 + tileCoordinates[tile.id][0]}px`,
-            top: `${boardHeight / 2 + tileCoordinates[tile.id][1]}px`,
+            width: `${tileWidth}vh`,
+            height: `${tileHeight}vh`,
+            marginLeft: `-${tileWidth / 2}vh`,
+            marginTop: `-${tileHeight / 2}vh`,
+            left: `${boardWidth / 2 + tileCoordinates[tile.id][0]}vh`,
+            top: `${boardHeight / 2 + tileCoordinates[tile.id][1]}vh`,
           },
         };
       });
@@ -165,8 +167,8 @@ export default defineComponent({
         return {
           ...corner,
           style: {
-            left: `${boardWidth / 2 + cornerCoordinates[corner.id][0]}px`,
-            top: `${boardHeight / 2 + cornerCoordinates[corner.id][1]}px`,
+            left: `${boardWidth / 2 + cornerCoordinates[corner.id][0]}vh`,
+            top: `${boardHeight / 2 + cornerCoordinates[corner.id][1]}vh`,
           },
         };
       });
@@ -175,6 +177,7 @@ export default defineComponent({
       corners: [number, number];
       road: Road | null;
       style: Record<string, string>;
+      direction: number;
     }[] {
       return ([] as [number, number][])
         .concat(
@@ -212,16 +215,17 @@ export default defineComponent({
                   (road.corners[1] === corner1 && road.corners[0] === corner2)
               ) ?? null,
             style: {
-              height: `${tileHeight / 2}px`,
-              marginTop: `-${tileHeight / 4}px`,
+              height: `${tileHeight / 2}vh`,
+              marginTop: `-${tileHeight / 4}vh`,
               left: `${
                 boardWidth / 2 + (corner1Coords[0] + corner2Coords[0]) / 2
-              }px`,
+              }vh`,
               top: `${
                 boardHeight / 2 + (corner1Coords[1] + corner2Coords[1]) / 2
-              }px`,
+              }vh`,
               transform: `rotate(${rotation}rad)`,
             },
+            direction: rotation === 0 ? 0 : rotation < 0 ? 1 : 2,
           };
         });
     },
@@ -236,7 +240,41 @@ export default defineComponent({
 
 <style lang="scss">
 .board {
-  background-image: url("../../assets/board-background.png");
-  background-size: cover;
+  position: relative;
+  filter: drop-shadow(0px 18px 10px rgba(0, 0, 0, 0.45));
+  // transform: perspective(50vh) rotateX(5deg) translateY(-4vh);
+
+  .board-background {
+    @include absolute-cover;
+    background-image: url("../../assets/board-background.png");
+    background-size: cover;
+    animation: fade-in 1600ms;
+  }
+
+  .tile {
+    @for $i from 0 through 18 {
+      &:nth-child(#{$i + 2}) {
+        animation: wait ($i * 40ms), fade-in 800ms ($i * 40ms);
+      }
+    }
+  }
+}
+
+@keyframes wait {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>
