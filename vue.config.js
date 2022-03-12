@@ -1,5 +1,10 @@
 const { defineConfig } = require("@vue/cli-service");
+
 module.exports = defineConfig({
+  publicPath:
+    process.env.NODE_ENV === "production"
+      ? "https://francofrizzo.com/catan"
+      : "/",
   devServer: {
     proxy: {
       "^/catan/api": {

@@ -1,6 +1,8 @@
 import GameState from "@/models/GameState";
 
-const baseURL = "ws://localhost:7123";
+const baseURL = `${window.location.protocol === "https:" ? "wss" : "ws"}://${
+  window.location.host
+}/catan/api`;
 
 export function subscribeToUpdates(
   gameId: string,
