@@ -25,18 +25,17 @@ import { defineComponent, PropType } from "vue";
 
 import Tile from "@/models/Tile";
 
-import game from "@/game";
-
 export default defineComponent({
+  inject: ["game"],
   props: {
     tile: { type: Object as PropType<Tile>, required: true },
   },
   computed: {
     canMoveThief(): boolean {
-      return game.availableActions.includes("MoveThief");
+      return this.game.availableActions.includes("MoveThief");
     },
     movingThief(): boolean {
-      return game.isMovingThief;
+      return this.game.isMovingThief;
     },
     className(): string[] {
       const classes = [
@@ -63,12 +62,12 @@ export default defineComponent({
   methods: {
     handleClick() {
       if (this.movingThief && !this.tile.hasThief) {
-        game.moveThief(this.tile.id);
+        this.game.moveThief(this.tile.id);
       }
     },
     handleThiefClick() {
       if (this.canMoveThief) {
-        game.startMovingThief();
+        this.game.startMovingThief();
       }
     },
   },

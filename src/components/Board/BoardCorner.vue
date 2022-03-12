@@ -7,22 +7,22 @@ import { defineComponent, PropType } from "vue";
 
 import Corner from "@/models/Corner";
 
-import game from "@/game";
 import { getResourceIcon } from "@/models/Resource";
 
 export default defineComponent({
+  inject: ["game"],
   props: {
     corner: { type: Object as PropType<Corner>, required: true },
   },
   computed: {
     activePlayerId(): number {
-      return game.activePlayerId;
+      return this.game.activePlayerId!;
     },
     buildingSettlement(): boolean {
-      return game.isBuildingSettlement;
+      return this.game.isBuildingSettlement;
     },
     buildingCity(): boolean {
-      return game.isBuildingCity;
+      return this.game.isBuildingCity;
     },
     className(): string[] {
       const classes = [];
@@ -52,14 +52,14 @@ export default defineComponent({
     getResourceIcon,
     handleClick() {
       if (this.buildingSettlement && this.corner.construction === null) {
-        game.buildSettlement(this.corner.id);
+        this.game.buildSettlement(this.corner.id);
       } else if (
         this.buildingCity &&
         this.corner.construction !== null &&
         this.corner.construction.type === "Settlement" &&
         this.corner.construction.player === this.activePlayerId
       )
-        game.buildCity(this.corner.id);
+        this.game.buildCity(this.corner.id);
     },
   },
 });

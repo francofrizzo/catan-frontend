@@ -69,45 +69,44 @@ import Player from "@/models/Player";
 import PrivatePlayerState from "@/models/PrivatePlayerState";
 import Resource, { getResourceIcon } from "@/models/Resource";
 
-import game from "@/game";
-
 import CardDeck from "@/components/Elements/CardDeck.vue";
 import ResourceCard from "@/components/Elements/ResourceCard.vue";
 
 export default defineComponent({
+  inject: ["game"],
   props: {
     player: { type: Object as PropType<Player>, required: true },
   },
   computed: {
     playerState(): PrivatePlayerState | null {
-      return game.privateState;
+      return this.game.privateState;
     },
     availableActions(): Action[] {
-      return game.availableActions;
+      return this.game.availableActions;
     },
   },
   methods: {
     getResourceIcon,
     startBuildingSettlement() {
-      game.startBuildingSettlement();
+      this.game.startBuildingSettlement();
     },
     startBuildingCity() {
-      game.startBuildingCity();
+      this.game.startBuildingCity();
     },
     startBuildingRoad() {
-      game.startBuildingRoad();
+      this.game.startBuildingRoad();
     },
     collect(resource: Resource) {
-      game.collectResource(resource);
+      this.game.collectResource(resource);
     },
     discard(resource: Resource) {
-      game.discardResource(resource);
+      this.game.discardResource(resource);
     },
     buyDevelopmentCard() {
-      game.buyDevelopmentCard();
+      this.game.buyDevelopmentCard();
     },
     playDevelopmentCard(cardId: number) {
-      game.playDevelopmentCard(cardId);
+      this.game.playDevelopmentCard(cardId);
     },
   },
   components: { CardDeck, ResourceCard },

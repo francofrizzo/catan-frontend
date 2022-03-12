@@ -16,11 +16,10 @@ import { defineComponent, PropType } from "vue";
 import Road from "@/models/Road";
 import Port from "@/models/Port";
 
-import game from "@/game";
-
 import BoardPort from "@/components/Board/BoardPort.vue";
 
 export default defineComponent({
+  inject: ["game"],
   props: {
     corners: { type: Array as PropType<number[]>, required: true },
     road: { type: [Object, null] as PropType<Road | null>, required: true },
@@ -28,10 +27,10 @@ export default defineComponent({
   },
   computed: {
     activePlayerId(): number {
-      return game.activePlayerId;
+      return this.game.activePlayerId!;
     },
     buildingRoad(): boolean {
-      return game.isBuildingRoad;
+      return this.game.isBuildingRoad;
     },
     className(): string[] {
       const classes = [`edge-direction-${this.direction}`];
@@ -47,12 +46,12 @@ export default defineComponent({
       return classes;
     },
     port(): Port | boolean {
-      if (game.publicState) {
-        const corner1 = game.publicState.board.corners.find(
+      if (this.game.publicState) {
+        const corner1 = this.game.publicState.board.corners.find(
           ({ id }) => id === this.corners[0]
         );
         if (corner1 && corner1.port !== null) {
-          const corner2 = game.publicState.board.corners.find(
+          const corner2 = this.game.publicState.board.corners.find(
             ({ id }) => id === this.corners[1]
           );
           if (corner2 && corner2.port !== null) {
@@ -75,7 +74,7 @@ export default defineComponent({
   methods: {
     handleClick() {
       if (this.buildingRoad && this.road === null) {
-        game.buildRoad([this.corners[0], this.corners[1]]);
+        this.game.buildRoad([this.corners[0], this.corners[1]]);
       }
     },
   },

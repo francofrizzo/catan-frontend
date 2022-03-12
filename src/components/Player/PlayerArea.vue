@@ -18,13 +18,12 @@ import { defineComponent, PropType } from "vue";
 
 import Player from "@/models/Player";
 
-import game from "@/game";
-
 import PlayerHeader from "@/components/Player/PlayerHeader.vue";
 import ActivePlayerArea from "@/components/Player/ActivePlayerArea.vue";
 import InactivePlayerArea from "@/components/Player/InactivePlayerArea.vue";
 
 export default defineComponent({
+  inject: ["game"],
   components: { PlayerHeader, ActivePlayerArea, InactivePlayerArea },
   props: {
     playerId: { type: Number, required: true },
@@ -37,10 +36,12 @@ export default defineComponent({
   },
   computed: {
     player(): Player {
-      return game.publicState!.players.find(({ id }) => id === this.playerId)!;
+      return this.game.publicState!.players.find(
+        ({ id }) => id === this.playerId
+      )!;
     },
     isActive(): boolean {
-      return game.activePlayerId === this.playerId;
+      return this.game.activePlayerId === this.playerId;
     },
   },
 });
@@ -49,17 +50,18 @@ export default defineComponent({
 <style lang="scss">
 .player-area {
   display: flex;
-  justify-content: start;
   height: 100%;
 
   &.player-area-top-left,
   &.player-area-top-right {
     flex-direction: column;
+    justify-content: start;
   }
 
   &.player-area-bottom-left,
   &.player-area-bottom-right {
     flex-direction: column-reverse;
+    justify-content: end;
   }
 
   &.player-area-top-left,

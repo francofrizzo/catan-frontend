@@ -35,7 +35,6 @@ import Road from "@/models/Road";
 import TileComponent from "@/components/Board/BoardTile.vue";
 import CornerComponent from "@/components/Board/BoardCorner.vue";
 import EdgeComponent from "@/components/Board/BoardEdge.vue";
-import game from "@/game";
 
 export type BoardMode = "default" | "building-settlement";
 
@@ -136,9 +135,10 @@ const tileCoordinates = generateTileCoordinates();
 const cornerCoordinates = generateCornerCoordinates();
 
 export default defineComponent({
+  inject: ["game"],
   computed: {
     board(): Board {
-      return game.publicState!.board;
+      return this.game.publicState!.board;
     },
     boardStyle(): Record<string, string> {
       return {

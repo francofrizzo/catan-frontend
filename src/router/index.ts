@@ -1,11 +1,18 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import StartView from "../views/StartView.vue";
+import GameView from "../views/GameView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    name: "home",
-    component: HomeView,
+    name: "start",
+    component: StartView,
+  },
+  {
+    path: "/:gameId",
+    name: "game",
+    props: ({ params }) => ({ gameId: params.gameId }),
+    component: GameView,
   },
 ];
 

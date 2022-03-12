@@ -1,26 +1,16 @@
-import PublicGameState from "@/models/PublicGameState";
-import PrivateGameState from "@/models/PrivateGameState";
+import GameState from "@/models/GameState";
 
 const baseURL = "ws://localhost:7123";
 
-export function subscribeToPublicUpdates(
+export function subscribeToUpdates(
   gameId: string,
-  callback: (data: PublicGameState) => void
+  callback: (data: {
+    event: string;
+    eventData?: Record<string, unknown>;
+    state: GameState;
+  }) => void
 ) {
   const ws = new WebSocket(`${baseURL}/game/${gameId}/updates`);
-  ws.onmessage = ({ data }) => {
-    callback(JSON.parse(data));
-  };
-}
-
-export function subscribeToPrivateUpdates(
-  gameId: string,
-  playerId: number,
-  callback: (data: PrivateGameState) => void
-) {
-  const ws = new WebSocket(
-    `${baseURL}/game/${gameId}/player/${playerId}/updates`
-  );
   ws.onmessage = ({ data }) => {
     callback(JSON.parse(data));
   };

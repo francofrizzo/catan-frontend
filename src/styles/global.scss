@@ -14,13 +14,29 @@ body {
   user-select: none;
 }
 
+input {
+  @include pillow;
+  font-family: $font-family;
+  padding: 0.2rem 0.6rem;
+  transition: box-shadow 200ms ease;
+
+  &:focus {
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4) inset,
+      0 1px 4px 1px rgba(255, 255, 255, 0.5);
+    outline: none;
+  }
+}
+
 button {
   @include pillow;
   font-family: $font-family;
   padding: 0.2rem 0.6rem;
   cursor: pointer;
+  transition: filter 200ms ease;
 
-  &:hover {
+  &:hover,
+  &:focus {
+    outline: none;
     filter: brightness(110%);
   }
 

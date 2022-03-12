@@ -3,15 +3,15 @@
     <div class="lateral-column">
       <div class="player-area-container">
         <player-area
-          v-if="playerIds.includes(0)"
-          :player-id="0"
+          v-if="playerIds.length >= 1"
+          :player-id="playerIds[0]"
           position="top-left"
         />
       </div>
       <div class="player-area-container">
         <player-area
-          v-if="playerIds.includes(1)"
-          :player-id="1"
+          v-if="playerIds.length >= 2"
+          :player-id="playerIds[1]"
           position="bottom-left"
         />
       </div>
@@ -22,15 +22,15 @@
     <div class="lateral-column">
       <div class="player-area-container">
         <player-area
-          v-if="playerIds.includes(3)"
-          :player-id="3"
+          v-if="playerIds.length >= 4"
+          :player-id="playerIds[3]"
           position="top-right"
         />
       </div>
       <div class="player-area-container">
         <player-area
-          v-if="playerIds.includes(2)"
-          :player-id="2"
+          v-if="playerIds.length >= 3"
+          :player-id="playerIds[2]"
           position="bottom-right"
         />
       </div>
@@ -44,20 +44,31 @@ import { defineComponent } from "vue";
 import Board from "@/components/Board/GameBoard.vue";
 import PlayerArea from "@/components/Player/PlayerArea.vue";
 
-import game from "@/game";
 import PublicGameState from "@/models/PublicGameState";
 
 export default defineComponent({
-  name: "HomeView",
+  name: "StartedGameView",
+  inject: ["game"],
   computed: {
+    activePlayerId(): number | null {
+      return this.game.activePlayerId;
+    },
     gameState(): PublicGameState | null {
-      return game.publicState;
+      return this.game.publicState;
     },
     playerIds(): number[] {
-      return this.gameState?.players.map(({ id }) => id) ?? [];
-    },
-    activePlayerId(): number | null {
-      return game.activePlayerId;
+      const ids = this.gameState?.players.map(({ id }) => id) ?? [];
+      if (this.activePlayerId) {
+        const activePlayerIndex = ids.findIndex(
+          (id) => this.activePlayerId === id
+        );
+        return [
+          ...ids.slice(activePlayerIndex),
+          ...ids.slice(0, activePlayerIndex),
+        ];
+      } else {
+        return ids;
+      }
     },
   },
   components: {
@@ -70,7 +81,7 @@ export default defineComponent({
 <style lang="scss">
 .playtable {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
 
   .lateral-column {

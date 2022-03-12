@@ -2,10 +2,9 @@
   <div
     class="player-header"
     :class="[`player-header-${player.id}`, { 'current-turn': isCurrentTurn }]"
-    @click="switchActivePlayer()"
   >
     <div class="current-turn-marker" v-if="isCurrentTurn"></div>
-    <div class="player-picture"></div>
+    <player-picture :player="player" />
     <h2>{{ player.name }}</h2>
 
     <template v-if="isActive">
@@ -35,40 +34,37 @@ import { defineComponent, PropType } from "vue";
 import Action from "@/models/Action";
 import Player from "@/models/Player";
 
-import game from "@/game";
-
 import RolledDice from "@/components/Elements/RolledDice.vue";
+import PlayerPicture from "@/components/Elements/PlayerPicture.vue";
 
 export default defineComponent({
+  inject: ["game"],
   props: {
     player: { type: Object as PropType<Player>, required: true },
   },
   computed: {
     isActive(): boolean {
-      return game.activePlayerId === this.player.id;
+      return this.game.activePlayerId === this.player.id;
     },
     isCurrentTurn(): boolean {
-      return game.publicState?.currentTurn.player === this.player.id;
+      return this.game.publicState?.currentTurn.player === this.player.id;
     },
     diceRoll(): [number, number] | null {
-      return game.publicState?.currentTurn.eachDiceRoll ?? null;
+      return this.game.publicState?.currentTurn.eachDiceRoll ?? null;
     },
     availableActions(): Action[] {
-      return game.availableActions;
+      return this.game.availableActions;
     },
   },
   methods: {
-    switchActivePlayer() {
-      game.switchActivePlayer(this.player.id);
-    },
     rollDice() {
-      game.rollDice();
+      this.game.rollDice();
     },
     pass() {
-      game.pass();
+      this.game.pass();
     },
   },
-  components: { RolledDice },
+  components: { RolledDice, PlayerPicture },
 });
 </script>
 
@@ -76,16 +72,7 @@ export default defineComponent({
 .player-header {
   display: flex;
   align-items: center;
-  cursor: pointer;
   position: relative;
-
-  .player-picture {
-    @include round($player-picture-size);
-    background-image: url("../../assets/someone.png");
-    background-size: cover;
-    border-width: $player-picture-border-width;
-    border-style: solid;
-  }
 
   h2 {
     margin: 0 1rem;
@@ -112,10 +99,6 @@ export default defineComponent({
 
   @each $player, $color in $player-colors {
     &.player-header-#{$player} {
-      .player-picture {
-        border-color: $color;
-      }
-
       .header-action-button {
         color: color-yiq($color, black, white);
         background-color: $color;

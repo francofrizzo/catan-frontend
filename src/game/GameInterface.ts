@@ -7,15 +7,10 @@ import * as websocketsApi from "@/api/websocket";
 import { ErrorReason, getErrorMessage } from "@/api/errorMessages";
 
 import Action, { ActionArguments } from "@/models/Action";
-import PublicGameState from "@/models/PublicGameState";
-import PrivateGameState from "@/models/PrivateGameState";
-import PrivatePlayerState from "@/models/PrivatePlayerState";
+import GameState from "@/models/GameState";
 import Resource from "@/models/Resource";
-
-type ActionArgs = [
-  string,
-  "string" | "number" | [string | number, "string" | "number"][]
-][];
+import PrivatePlayerState from "@/models/PrivatePlayerState";
+import PublicGameState from "@/models/PublicGameState";
 
 export type BoardState =
   | "normal"
@@ -26,39 +21,67 @@ export type BoardState =
 
 export class GameInterface {
   private state = reactive({
-    gameId: null as string | null,
-    publicState: null as PublicGameState | null,
-    privateState: {} as Record<number, PrivateGameState>,
-    activePlayerId: 0,
+    gameState: null as GameState | null,
     boardState: "normal" as BoardState,
   });
 
-  constructor() {
-    this.create();
+  constructor(public gameId: string) {}
+
+  public get gameState(): GameState | null {
+    return this.state.gameState;
   }
 
-  private get gameId(): string | null {
-    return this.state.gameId;
+  public get players(): GameState["players"] {
+    return this.state.gameState?.players ?? [];
   }
 
-  public get publicState(): PublicGameState | null {
-    return this.state.publicState;
+  public get activePlayerId(): number | null {
+    return this.state.gameState?.currentPlayer?.id ?? null;
+  }
+
+  public get currentTurnPlayerId(): number | null {
+    return this.state.gameState?.started
+      ? this.state.gameState.currentTurn.player
+      : null;
   }
 
   public get playerIds(): number[] {
-    return this.publicState?.players.map(({ id }) => id) ?? [];
+    return this.gameState?.players.map(({ id }) => id) ?? [];
   }
 
-  public get activePlayerId(): number {
-    return this.state.activePlayerId;
+  public get started(): boolean {
+    return this.gameState?.started ?? false;
+  }
+
+  public get publicState(): PublicGameState | null {
+    return this.gameState?.started ? this.gameState : null;
   }
 
   public get privateState(): PrivatePlayerState | null {
-    return this.state.privateState[this.activePlayerId]?.privateState ?? null;
+    return this.gameState?.started
+      ? this.gameState.currentPlayer ?? null
+      : null;
   }
 
   public get availableActions(): Action[] {
-    return this.state.privateState[this.activePlayerId]?.availableActions ?? [];
+    return this.gameState?.started ? this.gameState.availableActions ?? [] : [];
+  }
+
+  public async updateState(): Promise<void> {
+    try {
+      await api.getGameState(this.gameId);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (
+          err.response?.data.reason &&
+          err.response.data.reason === "GAME_NOT_FOUND"
+        ) {
+          throw new Error("GAME_NOT_FOUND");
+        } else {
+          toastr.error("¡Ups! Algo salió mal.");
+        }
+      }
+    }
   }
 
   public async rollDice(): Promise<void> {
@@ -143,52 +166,11 @@ export class GameInterface {
     });
   }
 
-  public get actions(): {
-    [key in Action]?: { available: boolean; args: ActionArgs };
-  } {
-    const availableActions = this.availableActions;
-    return {
-      Exchange: {
-        available: availableActions.includes("Exchange"),
-        args: [
-          ["otherPlayer", "number"],
-          [
-            "resourcesGiven",
-            [
-              ["Lumber", "number"],
-              ["Ore", "number"],
-              ["Grain", "number"],
-              ["Brick", "number"],
-              ["Wool", "number"],
-            ],
-          ],
-          [
-            "resourcesTaken",
-            [
-              ["Lumber", "number"],
-              ["Ore", "number"],
-              ["Grain", "number"],
-              ["Brick", "number"],
-              ["Wool", "number"],
-            ],
-          ],
-        ],
-      },
-      Trade: {
-        available: availableActions.includes("Trade"),
-        args: [
-          ["resourceGiven", "string"],
-          ["resourceTaken", "string"],
-        ],
-      },
-    };
-  }
-
   public async executeAction<A extends Action>(
     actionKey: A,
     args: ActionArguments<A> = {}
   ) {
-    if (this.gameId) {
+    if (this.activePlayerId !== null) {
       try {
         await api.executeGameAction(
           this.gameId,
@@ -196,88 +178,37 @@ export class GameInterface {
           actionKey,
           args
         );
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
           let errorMessage = "¡Ups! Algo salió mal.";
-          if (err.response?.data) {
-            const match = (err.response?.data as string).match(
-              /^Error (executing action: |parsing arguments)Error: (.*)/
+          if (err.response?.data.reason) {
+            errorMessage = getErrorMessage(
+              err.response?.data.reason as ErrorReason,
+              actionKey,
+              args
             );
-            if (match) {
-              errorMessage = getErrorMessage(
-                match[2] as ErrorReason,
-                actionKey,
-                args
-              );
-            }
           }
           toastr.error(errorMessage);
         }
       }
     } else {
-      throw new Error("Cannot execute action: game id is not defined");
+      throw new Error("Cannot execute action: there is no active player");
     }
   }
 
-  public async executeActionLegacy(actionKey: Action, args: any) {
-    const action = this.actions[actionKey];
-    const convertedArgs: any = {};
-    action!.args.forEach(([arg, argType]) => {
-      if (argType === "string") {
-        convertedArgs[arg] = args[arg];
-      } else if (argType === "number") {
-        convertedArgs[arg] = parseInt(args[arg]);
-      } else {
-        const isArray = argType.some(([arg]) => typeof arg === "number");
-        if (isArray) {
-          convertedArgs[arg] = [];
-          argType.forEach(([subarg, subargType]) => {
-            convertedArgs[arg].push(
-              subargType === "string"
-                ? args[`${arg}:${subarg}`]
-                : parseInt(args[`${arg}:${subarg}`])
-            );
-          });
-        } else {
-          convertedArgs[arg] = {};
-          argType.forEach(([subarg, subargType]) => {
-            convertedArgs[arg][subarg] =
-              subargType === "string"
-                ? args[`${arg}:${subarg}`]
-                : parseInt(args[`${arg}:${subarg}`]);
-          });
-        }
-      }
-    });
-    await this.executeAction(actionKey, convertedArgs);
+  private setGameState(newGameState: GameState) {
+    this.state.gameState = newGameState;
+    this.autoExecuteActions();
   }
 
-  public switchActivePlayer(playerId: number) {
-    this.state.activePlayerId = playerId;
-  }
-
-  private async create() {
-    this.state.gameId = await api.createGame();
-    await this.updateState();
-    this.subscribeToPublicUpdates();
-    this.subscribeToAllPrivateUpdates();
-  }
-
-  private setPublicState(newState: PublicGameState) {
-    const oldState = this.publicState;
-    this.state.publicState = newState;
-    if (!oldState || oldState.currentTurn.player === this.activePlayerId) {
-      this.switchActivePlayer(newState.currentTurn.player);
-    }
-  }
-
-  private async setPrivateState(playerId: number, newState: PrivateGameState) {
-    this.state.privateState[playerId] = newState;
+  private async autoExecuteActions() {
     if (
-      playerId === this.activePlayerId &&
-      newState.availableActions.length === 1
+      this.gameState?.started &&
+      this.activePlayerId !== null &&
+      this.activePlayerId === this.currentTurnPlayerId &&
+      this.availableActions.length === 1
     ) {
-      const onlyAvailableAction = newState.availableActions[0];
+      const onlyAvailableAction = this.availableActions[0];
       if (onlyAvailableAction === "Pass") {
         await this.executeAction("Pass");
       } else if (onlyAvailableAction === "BuildRoad") {
@@ -288,79 +219,10 @@ export class GameInterface {
     }
   }
 
-  private subscribeToPublicUpdates() {
-    if (this.state.gameId) {
-      websocketsApi.subscribeToPublicUpdates(this.state.gameId, (newState) =>
-        this.setPublicState(newState)
-      );
-    } else {
-      throw new Error(
-        "Cannot subscribe to public game updates: game id is not defined"
-      );
-    }
-  }
-
-  private subscribeToPrivateUpdates(playerId: number) {
-    if (this.state.gameId) {
-      websocketsApi.subscribeToPrivateUpdates(
-        this.state.gameId,
-        playerId,
-        (newState) => this.setPrivateState(playerId, newState)
-      );
-    } else {
-      throw new Error(
-        "Cannot subscribe to public game updates: game id is not defined"
-      );
-    }
-  }
-
-  private async subscribeToAllPrivateUpdates() {
-    if (this.publicState) {
-      await Promise.all(
-        this.publicState.players.map(({ id }) =>
-          this.subscribeToPrivateUpdates(id)
-        )
-      );
-    } else {
-      throw new Error(
-        "Cannot subscribe to private game updates for all players: public game state is not defined"
-      );
-    }
-  }
-
-  private async updateState() {
-    await this.updatePublicState();
-    await this.updateAllPrivateStates();
-  }
-
-  private async updatePublicState() {
-    if (this.gameId) {
-      const newState = await api.getGamePublicState(this.gameId);
-      this.setPublicState(newState);
-    } else {
-      throw new Error("Cannot get public game state: game id is not defined");
-    }
-  }
-
-  private async updatePrivateState(playerId: number) {
-    if (this.gameId) {
-      const newState = await api.getGamePrivateState(this.gameId, playerId);
-      await this.setPrivateState(playerId, newState);
-    } else {
-      throw new Error("Cannot get private game state: game id is not defined");
-    }
-  }
-
-  private async updateAllPrivateStates() {
-    if (this.publicState) {
-      await Promise.all(
-        this.publicState.players.map(({ id }) => this.updatePrivateState(id))
-      );
-    } else {
-      throw new Error(
-        "Cannot get private game state for all players: public game state is not defined"
-      );
-    }
+  public subscribeToUpdates() {
+    websocketsApi.subscribeToUpdates(this.gameId, ({ state }) =>
+      this.setGameState(state)
+    );
   }
 }
 
