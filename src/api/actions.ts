@@ -13,6 +13,15 @@ export const createGame = async (): Promise<string> => {
   return data.gameId;
 };
 
+export const createDebugGame = async (): Promise<string> => {
+  const { data } = await axios.request({
+    baseURL,
+    method: "POST",
+    url: "/debug-game",
+  });
+  return data.gameId;
+};
+
 export const addPlayerToGame = async (
   gameId: string,
   name: string
@@ -57,4 +66,17 @@ export const executeGameAction = async (
       args,
     },
   });
+};
+
+export const switchActivePlayer = async (
+  gameId: string,
+  playerId: number
+): Promise<GameState> => {
+  const { data } = await axios.request({
+    baseURL,
+    method: "POST",
+    url: `/game/${gameId}/switch-active-player`,
+    data: { playerId },
+  });
+  return data;
 };

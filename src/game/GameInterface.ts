@@ -53,6 +53,10 @@ export class GameInterface {
     return this.gameState?.started ?? false;
   }
 
+  public get isDebug(): boolean {
+    return this.gameState?.started === true && this.gameState.isDebug === true;
+  }
+
   public get publicState(): PublicGameState | null {
     return this.gameState?.started ? this.gameState : null;
   }
@@ -69,7 +73,8 @@ export class GameInterface {
 
   public async updateState(): Promise<void> {
     try {
-      await api.getGameState(this.gameId);
+      const newState = await api.getGameState(this.gameId);
+      this.setGameState(newState);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         if (
@@ -82,6 +87,11 @@ export class GameInterface {
         }
       }
     }
+  }
+
+  public async switchActivePlayer(playerId: number): Promise<void> {
+    const newState = await api.switchActivePlayer(this.gameId, playerId);
+    this.setGameState(newState);
   }
 
   public async rollDice(): Promise<void> {
@@ -196,9 +206,24 @@ export class GameInterface {
     }
   }
 
-  private setGameState(newGameState: GameState) {
+  private async setGameState(newGameState: GameState) {
+    const oldGameState = this.state.gameState;
     this.state.gameState = newGameState;
-    this.autoExecuteActions();
+    await this.autoExecuteActions();
+
+    const oldTurnPlayer = oldGameState?.started
+      ? oldGameState.currentTurn.player
+      : null;
+    const newTurnPlayer = newGameState.started
+      ? newGameState.currentTurn.player
+      : null;
+    if (
+      newTurnPlayer !== null &&
+      newTurnPlayer !== oldTurnPlayer &&
+      newTurnPlayer !== this.activePlayerId
+    ) {
+      await this.switchActivePlayer(newTurnPlayer);
+    }
   }
 
   private async autoExecuteActions() {
@@ -220,9 +245,9 @@ export class GameInterface {
   }
 
   public subscribeToUpdates() {
-    websocketsApi.subscribeToUpdates(this.gameId, ({ state }) =>
-      this.setGameState(state)
-    );
+    websocketsApi.subscribeToUpdates(this.gameId, ({ state }) => {
+      this.setGameState(state);
+    });
   }
 }
 

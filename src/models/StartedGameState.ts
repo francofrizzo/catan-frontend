@@ -7,6 +7,7 @@ export type StartedGamePublicState = {
 } & PublicGameState & {
     currentPlayer: undefined;
     availableActions: undefined;
+    isDebug?: true;
   };
 
 export type StartedGamePrivateState = {
@@ -14,6 +15,7 @@ export type StartedGamePrivateState = {
 } & PublicGameState & {
     currentPlayer: PrivatePlayerState;
     availableActions: Action[];
+    isDebug?: true;
   };
 
 export type StartedGameState = StartedGamePublicState | StartedGamePrivateState;

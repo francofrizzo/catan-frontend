@@ -2,6 +2,7 @@
   <div
     class="player-header"
     :class="[`player-header-${player.id}`, { 'current-turn': isCurrentTurn }]"
+    @click="switchActivePlayer()"
   >
     <div class="current-turn-marker" v-if="isCurrentTurn"></div>
     <player-picture :player="player" />
@@ -57,6 +58,11 @@ export default defineComponent({
     },
   },
   methods: {
+    switchActivePlayer() {
+      if (this.game.isDebug) {
+        this.game.switchActivePlayer(this.player.id);
+      }
+    },
     rollDice() {
       this.game.rollDice();
     },

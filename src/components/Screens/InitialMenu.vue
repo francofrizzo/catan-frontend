@@ -6,6 +6,7 @@
       <button @click="joiningGame = true">
         Unirse a una partida existente
       </button>
+      <button @click="createDebugGame()">Crear partida de prueba</button>
     </template>
     <template v-else>
       <form @submit.prevent="joinGame()">
@@ -23,13 +24,17 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 
-import { createGame } from "@/api/actions";
+import { createGame, createDebugGame } from "@/api/actions";
 
 export default defineComponent({
   data: () => ({ joiningGame: false, joiningGameId: "" }),
   methods: {
     async createGame() {
       const gameId = await createGame();
+      this.$router.push({ name: "game", params: { gameId } });
+    },
+    async createDebugGame() {
+      const gameId = await createDebugGame();
       this.$router.push({ name: "game", params: { gameId } });
     },
     joinGame() {

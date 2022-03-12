@@ -39,7 +39,6 @@ export default defineComponent({
   },
   async created() {
     try {
-      await this.game.updateState();
       await this.game.subscribeToUpdates();
       this.loading = false;
     } catch (err: unknown) {

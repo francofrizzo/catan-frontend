@@ -58,7 +58,7 @@ export default defineComponent({
     },
     playerIds(): number[] {
       const ids = this.gameState?.players.map(({ id }) => id) ?? [];
-      if (this.activePlayerId) {
+      if (this.activePlayerId && !this.game.isDebug) {
         const activePlayerIndex = ids.findIndex(
           (id) => this.activePlayerId === id
         );
