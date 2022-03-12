@@ -1,3 +1,19 @@
+import { getResourceName } from "@/lang";
+import Action, { ActionArguments } from "@/models/Action";
+import Resource from "@/models/Resource";
+
+function hasKey<K extends PropertyKey>(
+  obj: Record<PropertyKey, unknown>,
+  key: K
+): obj is Record<
+  K,
+  string | number | boolean | symbol | bigint | object | null
+> {
+  return (
+    Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== undefined
+  );
+}
+
 enum GameplayErrorReason {
   CornersNotAdjacent = "CORNERS_NOT_ADJACENT",
   CornerDoesntBelongToRoad = "CORNER_DOESNT_BELONG_TO_ROAD",
@@ -61,18 +77,46 @@ enum FailedCheckReason {
   DevelopmentCardAlreadyPlayedInTurn = "DEVELOPMENT_CARD_ALREADY_PLAYED_IN_TURN",
 }
 
+export type ErrorReason = GameplayErrorReason | FailedCheckReason;
+
+type ErrorMessageGetter = <A extends Action>(
+  action: A,
+  args: ActionArguments<A>
+) => string;
+
 const errorMessages: {
-  [key in GameplayErrorReason | FailedCheckReason]?: string;
+  [key in ErrorReason]?: ErrorMessageGetter;
 } = {
-  DISCONNECTED_EDGE:
+  DISCONNECTED_EDGE: () =>
     "El camino debe ser adyacente a alguna de tus construcciones.",
-  CORNER_ADJACENT_TO_OCCUPIED_CORNER:
+  CORNER_ADJACENT_TO_OCCUPIED_CORNER: () =>
     "No puedes construir en una posición adyacente a una posición ya ocupada.",
+  RESOURCES_NOT_AVAILABLE: (_, args) => {
+    if (hasKey(args, "resources")) {
+      const resourcesRequested = (
+        Object.entries(args.resources) as [Resource, number][]
+      ).filter(([, quantity]) => quantity > 0);
+      if (resourcesRequested.length === 1 && resourcesRequested[0][1] === 1) {
+        return `No tienes ${getResourceName(
+          resourcesRequested[0][0]
+        )} disponible para recoger en este momento.`;
+      }
+    }
+    return "No tienes suficiente de esos recursos para recoger en este momento.";
+  },
+  RESOURCES_NOT_DISCARDABLE: () =>
+    "No debes descartar recursos en este momento.",
+  NOT_ALLOWED_IN_THIS_TURN: () =>
+    "Esa acción no está permitida en este momento del juego.",
 };
 
-export const getErrorMessage = (errorReason: string) => {
-  if (Object.prototype.hasOwnProperty.call(errorMessages, errorReason)) {
-    return (errorMessages as { [key: string]: string })[errorReason];
+export const getErrorMessage = <A extends Action>(
+  errorReason: ErrorReason,
+  action: A,
+  args: ActionArguments<A>
+) => {
+  if (hasKey(errorMessages, errorReason)) {
+    return errorMessages[errorReason](action, args);
   } else {
     return `Ocurrió un error: ${errorReason}`;
   }

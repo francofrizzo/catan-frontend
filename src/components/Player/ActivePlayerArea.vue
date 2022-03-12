@@ -1,12 +1,32 @@
 <template>
   <div class="active-player-area player-area-subarea" v-if="playerState">
     <div class="section resources">
-      <resource-deck
+      <card-deck
         v-for="(quantity, resource) in playerState.resources"
         :key="resource"
-        :resource="resource"
         :quantity="quantity"
-      />
+      >
+        <div class="resource-control">
+          <div class="resource-menu">
+            <button
+              @click="collect(resource)"
+              v-if="availableActions.includes('Collect')"
+            >
+              +
+            </button>
+            <button
+              @click="discard(resource)"
+              v-if="availableActions.includes('Discard')"
+            >
+              -
+            </button>
+          </div>
+          <resource-card :resource="resource" :disabled="quantity === 0" />
+        </div>
+        <template #extra-card>
+          <resource-card no-icon :resource="resource" />
+        </template>
+      </card-deck>
     </div>
 
     <div class="section construction">
@@ -51,7 +71,8 @@ import Resource, { getResourceIcon } from "@/models/Resource";
 
 import game from "@/game";
 
-import ResourceDeck from "@/components/Elements/ResourceDeck.vue";
+import CardDeck from "@/components/Elements/CardDeck.vue";
+import ResourceCard from "@/components/Elements/ResourceCard.vue";
 
 export default defineComponent({
   props: {
@@ -89,7 +110,7 @@ export default defineComponent({
       game.playDevelopmentCard(cardId);
     },
   },
-  components: { ResourceDeck },
+  components: { CardDeck, ResourceCard },
 });
 </script>
 
@@ -115,6 +136,50 @@ export default defineComponent({
     .city {
       width: $construction-button-icon-size;
       height: $construction-button-icon-size;
+    }
+  }
+}
+
+.resource-control {
+  position: relative;
+
+  .resource-menu {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+    padding-bottom: $quantity-indicator-size / 2 + 0.5rem;
+    visibility: hidden;
+    z-index: 1;
+
+    button {
+      @include round(1.75rem);
+      font-size: 1.2rem;
+      background-color: $secondary-background-color;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      margin-top: 0.2rem;
+      transition: transform 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        opacity 200ms ease;
+      opacity: 0;
+      transform: scale(-20%);
+    }
+  }
+
+  &:hover {
+    .resource-menu {
+      visibility: visible;
+
+      button {
+        opacity: 1;
+        transform: none;
+      }
     }
   }
 }

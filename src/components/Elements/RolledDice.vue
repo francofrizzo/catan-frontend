@@ -69,10 +69,4 @@ export default defineComponent({
     background-size: contain;
   }
 }
-
-@keyframes rotate {
-  0% {
-    transform: rotate(50deg);
-  }
-}
 </style>

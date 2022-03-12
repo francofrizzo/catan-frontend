@@ -4,7 +4,7 @@ import axios from "axios";
 
 import * as api from "@/api/actions";
 import * as websocketsApi from "@/api/websocket";
-import { getErrorMessage } from "@/api/errorMessages";
+import { ErrorReason, getErrorMessage } from "@/api/errorMessages";
 
 import Action, { ActionArguments } from "@/models/Action";
 import PublicGameState from "@/models/PublicGameState";
@@ -204,7 +204,11 @@ export class GameInterface {
               /^Error (executing action: |parsing arguments)Error: (.*)/
             );
             if (match) {
-              errorMessage = getErrorMessage(match[2]);
+              errorMessage = getErrorMessage(
+                match[2] as ErrorReason,
+                actionKey,
+                args
+              );
             }
           }
           toastr.error(errorMessage);
