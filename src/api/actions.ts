@@ -2,7 +2,7 @@ import axios from "axios";
 
 import GameState from "@/models/GameState";
 
-const baseURL = "/api";
+const baseURL = "/catan/api";
 
 export const createGame = async (): Promise<string> => {
   const { data } = await axios.request({
