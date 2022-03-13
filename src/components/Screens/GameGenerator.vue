@@ -128,8 +128,12 @@ export default defineComponent({
 
   button,
   input {
-    padding: 0.6rem 1rem;
     margin-top: 2rem;
+  }
+
+  button,
+  input[type="text"] {
+    padding: 0.6rem 1rem;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
   }

@@ -264,41 +264,46 @@ export class GameInterface {
   }
 
   private async setGameState(newGameState: GameState) {
-    const oldGameState = this.state.gameState;
-    this.state.gameState = newGameState;
-    await this.autoExecuteActions();
+    const shouldPersist = await this.autoExecuteActions(newGameState);
 
-    const oldTurnPlayer = oldGameState?.started
-      ? oldGameState.currentTurn.player
-      : null;
-    const newTurnPlayer = newGameState.started
-      ? newGameState.currentTurn.player
-      : null;
-    if (
-      newTurnPlayer !== null &&
-      newTurnPlayer !== oldTurnPlayer &&
-      newTurnPlayer !== this.activePlayerId
-    ) {
-      await this.switchActivePlayer(newTurnPlayer);
+    if (shouldPersist) {
+      const oldGameState = this.state.gameState;
+      this.state.gameState = newGameState;
+
+      const oldTurnPlayer = oldGameState?.started
+        ? oldGameState.currentTurn.player
+        : null;
+      const newTurnPlayer = newGameState.started
+        ? newGameState.currentTurn.player
+        : null;
+      if (
+        newTurnPlayer !== null &&
+        newTurnPlayer !== oldTurnPlayer &&
+        newTurnPlayer !== this.activePlayerId
+      ) {
+        await this.switchActivePlayer(newTurnPlayer);
+      }
     }
   }
 
-  private async autoExecuteActions() {
+  private async autoExecuteActions(newGameState: GameState): Promise<boolean> {
     if (
-      this.gameState?.started &&
-      this.activePlayerId !== null &&
-      this.activePlayerId === this.currentTurnPlayerId &&
-      this.availableActions.length === 1
+      newGameState?.started &&
+      newGameState.currentPlayer?.id !== null &&
+      newGameState.currentPlayer?.id === newGameState.currentTurn.player &&
+      newGameState.availableActions?.length === 1
     ) {
-      const onlyAvailableAction = this.availableActions[0];
+      const onlyAvailableAction = newGameState.availableActions[0];
       if (onlyAvailableAction === "Pass") {
         await this.executeAction("Pass");
+        return false;
       } else if (onlyAvailableAction === "BuildRoad") {
         this.startBuildingRoad();
       } else if (onlyAvailableAction === "BuildSettlement") {
         this.startBuildingSettlement();
       }
     }
+    return true;
   }
 
   public subscribeToUpdates() {
