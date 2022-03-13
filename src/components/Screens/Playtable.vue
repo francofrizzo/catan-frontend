@@ -1,5 +1,8 @@
 <template>
-  <div class="playtable" v-if="gameState">
+  <template v-if="!assetsLoaded"
+    ><div class="loading">Cargando...</div></template
+  >
+  <div class="playtable" v-else-if="gameState">
     <div class="winner" :class="`winner-${winner.id}`" v-if="winner !== null">
       <player-picture :player="winner" />
       <div class="winner-name">{{ winner.name }}</div>
@@ -55,6 +58,9 @@ import PublicGameState from "@/models/PublicGameState";
 export default defineComponent({
   name: "StartedGameView",
   inject: ["game"],
+  data: () => ({
+    assetsLoaded: false,
+  }),
   computed: {
     activePlayerId(): number | null {
       return this.game.activePlayerId;
@@ -104,6 +110,7 @@ export default defineComponent({
           require(`@/assets/tile-${resource}.png`)
         ),
         ...resources.map((resource) => require(`@/assets/${resource}.png`)),
+        require("@/assets/tile-desert.png"),
         require("@/assets/dock.png"),
         require("@/assets/thief.png"),
         require("@/assets/someone.png"),
@@ -111,6 +118,7 @@ export default defineComponent({
         ...[1, 2, 3, 4, 5, 6].map((i) => require(`@/assets/dice-${i}.png`)),
       ].map((url) => preloadImage(url))
     );
+    this.assetsLoaded = true;
   },
   components: {
     Board,
