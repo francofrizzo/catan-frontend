@@ -6,17 +6,15 @@ body {
 }
 
 #app {
-  font-family: $font-family;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "lnum";
+  @include font-family;
   color: $light-font-color;
   user-select: none;
 }
 
 input {
   @include pillow;
-  font-family: $font-family;
+  @include font-family;
+  font-size: 1em;
   padding: 0.2rem 0.6rem;
   transition: box-shadow 200ms ease;
 
@@ -29,7 +27,8 @@ input {
 
 button {
   @include pillow;
-  font-family: $font-family;
+  @include font-family;
+  font-size: 1em;
   padding: 0.2rem 0.6rem;
   cursor: pointer;
   transition: filter 200ms ease;
@@ -37,11 +36,12 @@ button {
   &:hover,
   &:focus {
     outline: none;
-    filter: brightness(110%);
+    @include highlighted;
   }
 
   &:disabled {
     @include disabled;
+    cursor: default;
   }
 }
 

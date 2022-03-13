@@ -1,3 +1,10 @@
+@mixin font-family {
+  font-family: $font-family;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "lnum";
+}
+
 @mixin pillow {
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -14,6 +21,10 @@
 @mixin disabled {
   opacity: 0.5;
   filter: grayscale(80%);
+}
+
+@mixin highlighted {
+  filter: brightness(110%);
 }
 
 @mixin absolute-center($width, $height: $width) {

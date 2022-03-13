@@ -65,7 +65,7 @@ $card-to-icon-size-proportion: 0.65;
 $card-deck-spacing: 8px;
 
 $resource-card-width: 2.4rem;
-$development-card-width: 2.6rem;
+$development-card-width: 2.8rem;
 
 $construction-button-padding: 0.5rem;
 $construction-button-icon-size: 2.4rem;
@@ -76,6 +76,12 @@ $edge-size: 2.75 * ($board-height / 100);
 $port-size: 8.5 * ($board-height / 100);
 $tile-number-size: 6.75 * ($board-height / 100);
 $thief-size: 6.5 * ($board-height / 100);
+
+// Do not modify the following four variables
+$tile-aspect-ratio: 1.154700538;
+$board-width: $board-height * $tile-aspect-ratio;
+$tile-width: $board-height * 0.185977255;
+$tile-height: $tile-width * $tile-aspect-ratio;
 
 $current-turn-marker-size: 1.3rem;
 

@@ -1,5 +1,6 @@
 <template>
   <div class="board" :style="boardStyle">
+    {{ game.state.boardState }}
     <div class="board-background"></div>
     <tile
       v-for="tile in tiles"

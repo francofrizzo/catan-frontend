@@ -17,6 +17,14 @@
       :class="{ movable: canMoveThief && !movingThief }"
       @click="handleThiefClick()"
     ></div>
+    <div class="tile-steal-from-menu" v-if="recievingThief">
+      <player-picture
+        v-for="playerId in candidatePlayersToStealFrom"
+        :key="playerId"
+        :player-id="playerId"
+        @click="recieveThief(playerId)"
+      />
+    </div>
   </div>
 </template>
 
@@ -24,9 +32,14 @@
 import { defineComponent, PropType } from "vue";
 
 import Tile from "@/models/Tile";
+import PlayerPicture from "@/components/Elements/PlayerPicture.vue";
 
 export default defineComponent({
+  components: { PlayerPicture },
   inject: ["game"],
+  data: () => ({
+    candidatePlayersToStealFrom: [] as number[],
+  }),
   props: {
     tile: { type: Object as PropType<Tile>, required: true },
   },
@@ -37,17 +50,23 @@ export default defineComponent({
     movingThief(): boolean {
       return this.game.isMovingThief;
     },
+    recievingThief(): boolean {
+      return this.game.tileRecievingThief === this.tile.id;
+    },
     className(): string[] {
       const classes = [
         this.tile.resource
           ? `tile-${this.tile.resource.toLowerCase()}`
           : "tile-desert",
       ];
-      if (this.tile.hasThief && !this.movingThief) {
+      if (this.tile.hasThief && !this.movingThief && !this.recievingThief) {
         classes.push("has-thief");
       }
       if (this.movingThief && !this.tile.hasThief) {
         classes.push("moving-thief");
+      }
+      if (this.recievingThief && this.candidatePlayersToStealFrom.length > 0) {
+        classes.push("recieving-thief");
       }
       return classes;
     },
@@ -62,12 +81,31 @@ export default defineComponent({
   methods: {
     handleClick() {
       if (this.movingThief && !this.tile.hasThief) {
-        this.game.moveThief(this.tile.id);
+        this.prepareToRecieveThief();
       }
     },
     handleThiefClick() {
       if (this.canMoveThief) {
         this.game.startMovingThief();
+      }
+    },
+    prepareToRecieveThief() {
+      const stealablePlayers = this.game.getStealablePlayers(this.tile);
+      if (stealablePlayers.length === 0) {
+        this.recieveThief();
+      } else {
+        this.candidatePlayersToStealFrom = stealablePlayers;
+        this.game.setTileRecievingThief(this.tile.id);
+      }
+    },
+    recieveThief(stealFrom?: number) {
+      this.game.moveThief(this.tile.id, stealFrom);
+    },
+  },
+  watch: {
+    recievingThief(newValue: boolean) {
+      if (!newValue) {
+        this.candidatePlayersToStealFrom = [];
       }
     },
   },
@@ -146,12 +184,39 @@ export default defineComponent({
 }
 
 .tile.has-thief,
-.tile.moving-thief:hover {
+.tile.moving-thief:hover,
+.tile.recieving-thief {
   .tile-number {
     opacity: 0;
   }
   .tile-thief {
     @include board-piece-animation-active;
+  }
+}
+
+.tile-steal-from-menu {
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+  right: -0.1 * $tile-height;
+  top: 0;
+  height: 0.9 * $tile-height;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .player-picture {
+    @include board-piece-shadow;
+    pointer-events: all;
+    cursor: pointer;
+    width: 0.25 * $tile-height;
+    height: 0.25 * $tile-height;
+    margin: (0.025 * $tile-height) 0;
+    transition: transform 200ms ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
   }
 }
 </style>

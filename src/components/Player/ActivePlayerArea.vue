@@ -6,8 +6,8 @@
         :key="resource"
         :quantity="quantity"
       >
-        <div class="resource-control">
-          <div class="resource-menu">
+        <popup-menu>
+          <template #buttons>
             <button
               @click="collect(resource)"
               v-if="availableActions.includes('Collect')"
@@ -20,9 +20,9 @@
             >
               -
             </button>
-          </div>
+          </template>
           <resource-card :resource="resource" :disabled="quantity === 0" />
-        </div>
+        </popup-menu>
         <template #extra-card>
           <resource-card no-icon :resource="resource" />
         </template>
@@ -51,12 +51,18 @@
     </div>
 
     <div class="section development-cards">
-      <button
-        @click="buyDevelopmentCard()"
-        :disabled="!availableActions.includes('BuyDevelopmentCard')"
-      >
-        Comprar carta de desarrollo
-      </button>
+      <development-card
+        v-for="card in playerState.allDevelopmentCards"
+        :key="card.id"
+      />
+
+      <popup-menu :disabled="!availableActions.includes('BuyDevelopmentCard')">
+        <development-card />
+
+        <template #buttons>
+          <button @click="buyDevelopmentCard()">+</button>
+        </template>
+      </popup-menu>
     </div>
   </div>
 </template>
@@ -71,6 +77,8 @@ import Resource, { getResourceIcon } from "@/models/Resource";
 
 import CardDeck from "@/components/Elements/CardDeck.vue";
 import ResourceCard from "@/components/Elements/ResourceCard.vue";
+import DevelopmentCard from "@/components/Elements/DevelopmentCard.vue";
+import PopupMenu from "@/components/Elements/PopupMenu.vue";
 
 export default defineComponent({
   inject: ["game"],
@@ -109,23 +117,12 @@ export default defineComponent({
       this.game.playDevelopmentCard(cardId);
     },
   },
-  components: { CardDeck, ResourceCard },
+  components: { CardDeck, ResourceCard, DevelopmentCard, PopupMenu },
 });
 </script>
 
 <style lang="scss">
-.active-player-area {
-  .resources,
-  .construction {
-    margin-left: -0.3rem;
-    margin-right: -0.3rem;
-
-    > * {
-      margin-left: 0.3rem;
-      margin-right: 0.3rem;
-    }
-  }
-
+.player-area-subarea.active-player-area {
   .construction {
     button {
       padding: $construction-button-padding;
@@ -139,10 +136,11 @@ export default defineComponent({
   }
 }
 
-.resource-control {
+.popup-menu-container {
   position: relative;
+  display: inline-block;
 
-  .resource-menu {
+  .popup-menu {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -172,7 +170,7 @@ export default defineComponent({
   }
 
   &:hover {
-    .resource-menu {
+    .popup-menu {
       visibility: visible;
 
       button {

@@ -37,7 +37,7 @@ export default defineComponent({
   width: $resource-card-width;
   height: $card-aspect-ratio * $resource-card-width;
   font-size: $card-to-icon-size-proportion * $resource-card-width;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 

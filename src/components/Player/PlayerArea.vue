@@ -61,6 +61,7 @@ export default defineComponent({
   &.player-area-bottom-left,
   &.player-area-bottom-right {
     flex-direction: column-reverse;
+    justify-content: flex-end;
     justify-content: end;
   }
 
@@ -79,7 +80,12 @@ export default defineComponent({
   display: flex;
 
   .section {
-    margin: 0.6rem 0;
+    margin: 0.6rem -0.4rem;
+
+    > * {
+      margin-left: 0.4rem;
+      margin-right: 0.4rem;
+    }
   }
 }
 
@@ -88,6 +94,10 @@ export default defineComponent({
   .player-area-subarea {
     flex-direction: column;
     padding-top: 0.6rem;
+
+    .section {
+      align-items: flex-start;
+    }
   }
 }
 
@@ -96,6 +106,28 @@ export default defineComponent({
   .player-area-subarea {
     flex-direction: column-reverse;
     padding-bottom: 0.6rem;
+
+    .section {
+      align-items: flex-end;
+    }
+  }
+}
+
+.player-area-top-left,
+.player-area-bottom-left {
+  .player-area-subarea {
+    .section {
+      flex-direction: row;
+    }
+  }
+}
+
+.player-area-top-right,
+.player-area-bottom-right {
+  .player-area-subarea {
+    .section {
+      flex-direction: row-reverse;
+    }
   }
 }
 </style>

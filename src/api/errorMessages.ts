@@ -108,6 +108,7 @@ const errorMessages: {
     "No debes descartar recursos en este momento.",
   NOT_ALLOWED_IN_THIS_TURN: () =>
     "Esa acción no está permitida en este momento del juego.",
+  NOT_ENOUGH_RESOURCES: () => "No tienes recursos suficientes en este momento.",
 };
 
 export const getErrorMessage = <A extends Action>(

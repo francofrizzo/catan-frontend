@@ -11,6 +11,9 @@ import GameState from "@/models/GameState";
 import Resource from "@/models/Resource";
 import PrivatePlayerState from "@/models/PrivatePlayerState";
 import PublicGameState from "@/models/PublicGameState";
+import Corner from "@/models/Corner";
+import Tile from "@/models/Tile";
+import Player from "@/models/Player";
 
 export type BoardState =
   | "normal"
@@ -23,6 +26,7 @@ export class GameInterface {
   private state = reactive({
     gameState: null as GameState | null,
     boardState: "normal" as BoardState,
+    tileRecievingThief: null as number | null,
   });
 
   constructor(public gameId: string) {}
@@ -165,15 +169,61 @@ export class GameInterface {
     return this.state.boardState === "moving-thief";
   }
 
+  public getStealablePlayers(tile: Tile): number[] {
+    return Array.from(
+      new Set(
+        tile.corners.map(
+          (cornerId) => this.getCorner(cornerId)?.construction?.player
+        )
+      )
+    ).filter(
+      (id) =>
+        id !== undefined &&
+        id !== this.activePlayerId &&
+        this.getPlayer(id)!.resourcesCount! > 0
+    ) as number[];
+  }
+
+  public setTileRecievingThief(tileId: number): void {
+    this.state.tileRecievingThief = tileId;
+  }
+
+  public get tileRecievingThief(): number | null {
+    return this.state.tileRecievingThief;
+  }
+
   public async moveThief(
     tileId: number,
     stealFromPlayerId: number | null = null
   ): Promise<void> {
     this.state.boardState = "normal";
+    this.state.tileRecievingThief = null;
     await this.executeAction("MoveThief", {
       tile: tileId,
       stealFrom: stealFromPlayerId,
     });
+  }
+
+  public getTile(tileId: number): Tile | undefined {
+    if (this.gameState?.started) {
+      return this.gameState.board.tiles.find((tile) => tile.id === tileId);
+    }
+  }
+
+  public getCorner(cornerId: number): Corner | undefined {
+    if (this.gameState?.started) {
+      return this.gameState.board.corners.find(
+        (corner) => corner.id === cornerId
+      );
+    }
+  }
+
+  public getPlayer(
+    playerId: number
+  ): (Partial<Player> & { id: number; name: string }) | undefined {
+    if (this.gameState) {
+      return this.gameState.players.find((player) => player.id === playerId);
+    }
   }
 
   public async executeAction<A extends Action>(

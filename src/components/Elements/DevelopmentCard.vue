@@ -22,7 +22,7 @@ export default defineComponent({
   width: $development-card-width;
   height: $card-aspect-ratio * $development-card-width;
   font-size: $card-to-icon-size-proportion * $development-card-width;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   background-image: $development-card-gradient;

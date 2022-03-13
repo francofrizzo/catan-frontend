@@ -58,7 +58,6 @@ export default defineComponent({
 
   .main-card-container,
   .extra-card-container {
-    margin-bottom: ($quantity-indicator-size / 2);
     padding-bottom: ($quantity-indicator-size / 2);
   }
 
