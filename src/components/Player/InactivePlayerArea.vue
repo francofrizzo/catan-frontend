@@ -1,14 +1,17 @@
 <template>
   <div class="inactive-player-area player-area-subarea">
     <div class="section cards">
-      <card-deck :quantity="player.developmentCardCount">
+      <card-deck
+        class="development-cards"
+        :quantity="player.developmentCardCount"
+      >
         <development-card :disabled="player.developmentCardCount === 0" />
         <template #extra-card>
           <development-card no-icon :development="resource" />
         </template>
       </card-deck>
 
-      <card-deck :quantity="player.resourcesCount">
+      <card-deck class="resources" :quantity="player.resourcesCount">
         <resource-card :disabled="player.resourcesCount === 0" />
         <template #extra-card>
           <resource-card no-icon />

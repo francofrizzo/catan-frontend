@@ -5,6 +5,7 @@
       `player-area-${player.id}`,
       `player-area-${position}`,
       { active: isActive },
+      { 'must-discard': resourcesToDiscard > 0 },
     ]"
   >
     <player-header :player="player" />
@@ -43,6 +44,12 @@ export default defineComponent({
     isActive(): boolean {
       return this.game.activePlayerId === this.playerId;
     },
+    resourcesToDiscard(): number {
+      return (
+        this.game.publicState?.currentTurn.resourcesToDiscard[this.player.id] ??
+        0
+      );
+    },
   },
 });
 </script>
@@ -73,6 +80,16 @@ export default defineComponent({
   &.player-area-top-right,
   &.player-area-bottom-right {
     text-align: right;
+  }
+
+  .resources {
+    transition: filter 200ms ease;
+  }
+
+  &.must-discard {
+    .resources {
+      filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.8));
+    }
   }
 }
 

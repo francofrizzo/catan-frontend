@@ -161,6 +161,13 @@ export class GameInterface {
     await this.executeAction("PlayDevelopmentCard", { card: cardId });
   }
 
+  public async trade(
+    resourceGiven: Resource,
+    resourceTaken: Resource
+  ): Promise<void> {
+    await this.executeAction("Trade", { resourceGiven, resourceTaken });
+  }
+
   public startMovingThief(): void {
     this.state.boardState = "moving-thief";
   }

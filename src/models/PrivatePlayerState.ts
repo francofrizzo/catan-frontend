@@ -6,4 +6,5 @@ export default interface PrivatePlayerState {
   allDevelopmentCards: DevelopmentCard[];
   resources: Record<Resource, number>;
   totalVictoryPoints: number;
+  exchangeRates: Record<Resource, number>;
 }

@@ -24,6 +24,12 @@
       <input type="text" v-model="creatingPlayerName" autofocus />
       <button tpye="submit">Agregar jugador</button>
     </form>
+    <div>
+      <input type="checkbox" id="autocollect" v-model="autoCollect" /><label
+        for="autocollect"
+        >Recolectar recursos automáticamente</label
+      >
+    </div>
     <div class="game-id">
       ID de partida: <code>{{ gameId }}</code>
     </div>
@@ -48,6 +54,7 @@ export default defineComponent({
   inject: ["game"],
   data: () => ({
     creatingPlayerName: "",
+    autoCollect: false,
   }),
   computed: {
     gameId(): string {
@@ -68,7 +75,7 @@ export default defineComponent({
       api.addPlayerToGame(this.game.gameId, this.creatingPlayerName);
     },
     startGame() {
-      api.startGame(this.game.gameId);
+      api.startGame(this.game.gameId, this.autoCollect);
     },
   },
 });
@@ -127,7 +134,7 @@ export default defineComponent({
     margin-right: 0.5rem;
   }
 
-  input {
+  input[type="text"] {
     width: 8rem;
   }
 }

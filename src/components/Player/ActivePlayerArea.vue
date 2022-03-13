@@ -1,5 +1,5 @@
 <template>
-  <div class="active-player-area player-area-subarea" v-if="playerState">
+  <div class="active-player-area player-area-subarea">
     <div class="section resources">
       <card-deck
         v-for="(quantity, resource) in playerState.resources"
@@ -8,18 +8,35 @@
       >
         <popup-menu>
           <template #buttons>
-            <button
-              @click="collect(resource)"
-              v-if="availableActions.includes('Collect')"
-            >
-              +
-            </button>
-            <button
-              @click="discard(resource)"
-              v-if="availableActions.includes('Discard')"
-            >
-              -
-            </button>
+            <template v-if="tradingResource === null">
+              <button
+                @click="collect(resource)"
+                v-if="availableActions.includes('Collect')"
+              >
+                +
+              </button>
+              <button
+                @click="discard(resource)"
+                v-if="availableActions.includes('Discard')"
+              >
+                -
+              </button>
+              <button
+                @click="startTrading(resource)"
+                v-if="tradableResources.includes(resource)"
+              >
+                $-
+              </button>
+            </template>
+            <template v-else>
+              <button
+                @click="cancelTrading()"
+                v-if="tradingResource === resource"
+              >
+                ×
+              </button>
+              <button @click="trade(resource)" v-else>$+</button>
+            </template>
           </template>
           <resource-card :resource="resource" :disabled="quantity === 0" />
         </popup-menu>
@@ -82,6 +99,9 @@ import PopupMenu from "@/components/Elements/PopupMenu.vue";
 
 export default defineComponent({
   inject: ["game"],
+  data: () => ({
+    tradingResource: null as Resource | null,
+  }),
   props: {
     player: { type: Object as PropType<Player>, required: true },
   },
@@ -91,6 +111,23 @@ export default defineComponent({
     },
     availableActions(): Action[] {
       return this.game.availableActions;
+    },
+    tradableResources(): Resource[] {
+      if (this.playerState && this.availableActions.includes("Trade")) {
+        return [
+          Resource.Brick,
+          Resource.Grain,
+          Resource.Lumber,
+          Resource.Ore,
+          Resource.Wool,
+        ].filter(
+          (resource) =>
+            this.playerState!.resources[resource] >=
+            this.playerState!.exchangeRates[resource]
+        );
+      } else {
+        return [];
+      }
     },
   },
   methods: {
@@ -110,6 +147,16 @@ export default defineComponent({
     discard(resource: Resource) {
       this.game.discardResource(resource);
     },
+    startTrading(resource: Resource) {
+      this.tradingResource = resource;
+    },
+    trade(resource: Resource) {
+      this.game.trade(this.tradingResource!, resource);
+      this.tradingResource = null;
+    },
+    cancelTrading() {
+      this.tradingResource = null;
+    },
     buyDevelopmentCard() {
       this.game.buyDevelopmentCard();
     },
@@ -122,7 +169,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.player-area-subarea.active-player-area {
+.active-player-area {
   .construction {
     button {
       padding: $construction-button-padding;
@@ -132,51 +179,6 @@ export default defineComponent({
     .city {
       width: $construction-button-icon-size;
       height: $construction-button-icon-size;
-    }
-  }
-}
-
-.popup-menu-container {
-  position: relative;
-  display: inline-block;
-
-  .popup-menu {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    flex-direction: column-reverse;
-    padding-bottom: $quantity-indicator-size / 2 + 0.5rem;
-    visibility: hidden;
-    z-index: 1;
-
-    button {
-      @include round(1.75rem);
-      font-size: 1.2rem;
-      background-color: $secondary-background-color;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-      margin-top: 0.2rem;
-      transition: transform 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
-        opacity 200ms ease;
-      opacity: 0;
-      transform: scale(-20%);
-    }
-  }
-
-  &:hover {
-    .popup-menu {
-      visibility: visible;
-
-      button {
-        opacity: 1;
-        transform: none;
-      }
     }
   }
 }

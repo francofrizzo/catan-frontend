@@ -33,6 +33,13 @@ $player-light-gradients: (
   "3": linear-gradient(#dad6d4, #c0b9b5),
 );
 
+$player-dark-gradients: (
+  "0": linear-gradient(#c78c0f, #60480b),
+  "1": linear-gradient(#b42f35, #521919),
+  "2": linear-gradient(#0d46c2, #112458),
+  "3": linear-gradient(#eedad9, #504542),
+);
+
 $resource-gradients: (
   "brick": linear-gradient(#b54c2f, #532319),
   "grain": linear-gradient(#c79623, #5b4315),

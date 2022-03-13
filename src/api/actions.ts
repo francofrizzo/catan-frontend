@@ -34,11 +34,15 @@ export const addPlayerToGame = async (
   });
 };
 
-export const startGame = async (gameId: string): Promise<void> => {
+export const startGame = async (
+  gameId: string,
+  autoCollect: boolean
+): Promise<void> => {
   await axios.request({
     baseURL,
     method: "POST",
     url: `/game/${gameId}/start`,
+    data: { autoCollect },
   });
 };
 

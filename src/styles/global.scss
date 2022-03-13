@@ -11,7 +11,7 @@ body {
   user-select: none;
 }
 
-input {
+input[type="text"] {
   @include pillow;
   @include font-family;
   font-size: 1em;
