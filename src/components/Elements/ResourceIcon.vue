@@ -21,9 +21,9 @@ export default defineComponent({
 $resource-images: (
   "brick": "brick.png",
   "grain": "grain.png",
-  "lumber": "wood.png",
+  "lumber": "lumber.png",
   "ore": "ore.png",
-  "wool": "sheep.png",
+  "wool": "wool.png",
 );
 
 .resource-icon {

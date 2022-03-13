@@ -1,6 +1,8 @@
 <template>
   <div class="game-view">
-    <template v-if="loading">Cargando...</template>
+    <template v-if="!game.gameState"
+      ><div class="loading">Cargando...</div></template
+    >
     <template v-else>
       <game-generator v-if="!gameStarted" />
       <playtable v-else />
@@ -20,7 +22,6 @@ import GameGenerator from "@/components/Screens/GameGenerator.vue";
 export default defineComponent({
   data() {
     return {
-      loading: true,
       game: new GameInterface(this.gameId),
     };
   },
@@ -40,7 +41,6 @@ export default defineComponent({
   async created() {
     try {
       await this.game.subscribeToUpdates();
-      this.loading = false;
     } catch (err: unknown) {
       if (
         typeof err === "object" &&
@@ -63,5 +63,9 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   flex-direction: column;
+
+  .loading {
+    font-size: 1.35rem;
+  }
 }
 </style>

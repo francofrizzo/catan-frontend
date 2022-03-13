@@ -82,6 +82,36 @@ export default defineComponent({
         : null;
     },
   },
+  async beforeMount() {
+    const preloadImage = (src: string) =>
+      new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = resolve;
+        image.onerror = reject;
+        image.src = src;
+      });
+    const colors = ["yellow", "blue", "red", "white"];
+    const resources = ["brick", "grain", "lumber", "ore", "wool"];
+
+    await Promise.all(
+      [
+        ...colors.map((color) => require(`@/assets/road-${color}-front.png`)),
+        ...colors.map((color) => require(`@/assets/road-${color}-side.png`)),
+        ...colors.map((color) => require(`@/assets/road-${color}-side-2.png`)),
+        ...colors.map((color) => require(`@/assets/settlement-${color}.png`)),
+        ...colors.map((color) => require(`@/assets/city-${color}.png`)),
+        ...resources.map((resource) =>
+          require(`@/assets/tile-${resource}.png`)
+        ),
+        ...resources.map((resource) => require(`@/assets/${resource}.png`)),
+        require("@/assets/dock.png"),
+        require("@/assets/thief.png"),
+        require("@/assets/someone.png"),
+        require("@/assets/board-background.png"),
+        ...[1, 2, 3, 4, 5, 6].map((i) => require(`@/assets/dice-${i}.png`)),
+      ].map((url) => preloadImage(url))
+    );
+  },
   components: {
     Board,
     PlayerArea,

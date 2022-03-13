@@ -6,7 +6,7 @@
       :key="i"
     >
       <div class="extra-card-content">
-        <slot name="extra-card"><slot></slot></slot>
+        <slot name="extra-card" v-bind="{ index: i }"><slot></slot></slot>
       </div>
     </div>
     <div class="main-card-container">

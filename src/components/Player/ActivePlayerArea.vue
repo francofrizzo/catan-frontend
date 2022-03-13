@@ -38,10 +38,25 @@
               <button @click="trade(resource)" v-else>$+</button>
             </template>
           </template>
-          <resource-card :resource="resource" :disabled="quantity === 0" />
+          <resource-card
+            :resource="resource"
+            :disabled="quantity === 0"
+            :class="{
+              trading:
+                resource === tradingResource &&
+                quantity === tradingExchangeRate,
+            }"
+          />
         </popup-menu>
-        <template #extra-card>
-          <resource-card no-icon :resource="resource" />
+        <template #extra-card="{ index }">
+          <resource-card
+            no-icon
+            :resource="resource"
+            :class="{
+              trading:
+                resource === tradingResource && index < tradingExchangeRate,
+            }"
+          />
         </template>
       </card-deck>
     </div>
@@ -129,6 +144,11 @@ export default defineComponent({
         return [];
       }
     },
+    tradingExchangeRate(): number {
+      return this.tradingResource
+        ? this.playerState?.exchangeRates[this.tradingResource] ?? 0
+        : 0;
+    },
   },
   methods: {
     getResourceIcon,
@@ -179,6 +199,14 @@ export default defineComponent({
     .city {
       width: $construction-button-icon-size;
       height: $construction-button-icon-size;
+    }
+  }
+
+  .resource-card {
+    transition: transform 200ms ease;
+
+    &.trading {
+      transform: translateY(-8px);
     }
   }
 }
