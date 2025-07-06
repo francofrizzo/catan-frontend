@@ -2,7 +2,7 @@ import axios from "axios";
 
 import GameState from "@/models/GameState";
 
-const baseURL = "/catan/api";
+const baseURL = process.env.VUE_APP_API_BASE_URL;
 
 export const createGame = async (): Promise<string> => {
   const { data } = await axios.request({
