@@ -116,7 +116,7 @@ export default defineComponent({
     animation: menu-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) 200ms both;
 
     .game-id-input {
-      font-family: "Bona Nova", Georgia, serif;
+      font-family: $font-family-regular;
       font-size: 1.25em;
       text-transform: lowercase;
       text-align: center;

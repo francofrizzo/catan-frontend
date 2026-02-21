@@ -1,6 +1,7 @@
 /* Typography */
 
 $font-family: "Bona Nova SC", Georgia, "Times New Roman", Times, serif;
+$font-family-regular: "Bona Nova", Georgia, "Times New Roman", Times, serif;
 
 /* -------------------------------------------------------------------------- */
 
@@ -38,6 +39,13 @@ $player-dark-gradients: (
   "1": linear-gradient(#b42f35, #521919),
   "2": linear-gradient(#0d46c2, #112458),
   "3": linear-gradient(#eedad9, #504542),
+);
+
+$player-glow-colors: (
+  "0": #60480b,
+  "1": #521919,
+  "2": #112458,
+  "3": #504542,
 );
 
 $resource-gradients: (

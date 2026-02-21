@@ -64,7 +64,9 @@
   background-color: #b8e9c4;
 }
 .toast-error {
-  background-color: #eccfcf;
+  background-color: #e83030;
+  color: #fff !important;
+  font-family: $font-family-regular;
 }
 .toast-info {
   background-color: #c2d1e9;

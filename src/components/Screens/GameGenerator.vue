@@ -174,7 +174,7 @@ export default defineComponent({
     margin-top: 1rem;
 
     input[type="text"] {
-      font-family: "Bona Nova", Georgia, serif;
+      font-family: $font-family-regular;
       font-size: 1.1em;
       width: 10rem;
     }

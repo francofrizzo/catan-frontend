@@ -8,41 +8,27 @@
       <div class="winner-name">{{ winner.name }}</div>
       <div>ganó la partida</div>
     </div>
-    <div class="lateral-column">
-      <div class="player-area-container">
-        <player-area
-          v-if="playerIds.length >= 1"
-          :player-id="playerIds[0]"
-          position="top-left"
-        />
-      </div>
-      <div class="player-area-container">
-        <player-area
-          v-if="playerIds.length >= 2"
-          :player-id="playerIds[1]"
-          position="bottom-left"
-        />
-      </div>
-    </div>
-    <div class="board-column">
-      <board />
-    </div>
-    <div class="lateral-column">
-      <div class="player-area-container">
-        <player-area
-          v-if="playerIds.length >= 4"
-          :player-id="playerIds[3]"
-          position="top-right"
-        />
-      </div>
-      <div class="player-area-container">
-        <player-area
-          v-if="playerIds.length >= 3"
-          :player-id="playerIds[2]"
-          position="bottom-right"
-        />
-      </div>
-    </div>
+    <board />
+    <player-area
+      v-if="playerIds.length >= 1"
+      :player-id="playerIds[0]"
+      position="top-left"
+    />
+    <player-area
+      v-if="playerIds.length >= 2"
+      :player-id="playerIds[1]"
+      position="bottom-left"
+    />
+    <player-area
+      v-if="playerIds.length >= 4"
+      :player-id="playerIds[3]"
+      position="top-right"
+    />
+    <player-area
+      v-if="playerIds.length >= 3"
+      :player-id="playerIds[2]"
+      position="bottom-right"
+    />
   </div>
 </template>
 
@@ -132,30 +118,77 @@ export default defineComponent({
 .playtable {
   width: 100%;
   height: 100%;
-  display: flex;
+  display: grid;
+  place-items: center;
   position: relative;
+  overflow: hidden;
 
-  .lateral-column {
-    flex-basis: 20%;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .board-column {
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .player-area-container {
-    height: 40%;
+  .player-area {
+    position: absolute;
+    z-index: 1;
     padding: $player-area-padding;
-    flex-grow: 0;
+
+    &.player-area-top-left {
+      top: 0;
+      left: 0;
+    }
+    &.player-area-top-right {
+      top: 0;
+      right: 0;
+    }
+    &.player-area-bottom-left {
+      bottom: 0;
+      left: 0;
+    }
+    &.player-area-bottom-right {
+      bottom: 0;
+      right: 0;
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      z-index: -1;
+      width: 45vmin;
+      height: 45vmin;
+    }
+
+    &.player-area-top-left::before {
+      top: 0;
+      left: 0;
+    }
+    &.player-area-top-right::before {
+      top: 0;
+      right: 0;
+    }
+    &.player-area-bottom-left::before {
+      bottom: 0;
+      left: 0;
+    }
+    &.player-area-bottom-right::before {
+      bottom: 0;
+      right: 0;
+    }
+
+    $corner-gradient-origins: (
+      "top-left": 0% 0%,
+      "top-right": 100% 0%,
+      "bottom-left": 0% 100%,
+      "bottom-right": 100% 100%,
+    );
+
+    @each $id, $color in $player-glow-colors {
+      @each $corner, $origin in $corner-gradient-origins {
+        &.player-area-#{$id}.player-area-#{$corner}::before {
+          background: radial-gradient(
+            circle at #{$origin},
+            rgba($color, 0.7) 0%,
+            transparent 70%
+          );
+        }
+      }
+    }
   }
 
   .winner {

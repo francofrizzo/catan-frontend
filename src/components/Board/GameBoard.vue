@@ -1,6 +1,6 @@
 <template>
   <div class="board" :style="boardStyle">
-    <div class="board-background"></div>
+    <div class="board-background" :style="boardBackgroundStyle"></div>
     <tile
       v-for="tile in tiles"
       :key="`tile:${tile.id}`"
@@ -136,15 +136,41 @@ const cornerCoordinates = generateCornerCoordinates();
 
 export default defineComponent({
   inject: ["game"],
+  data() {
+    return { scale: 1 };
+  },
+  mounted() {
+    this.updateScale();
+    window.addEventListener("resize", this.updateScale);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.updateScale);
+  },
+  methods: {
+    updateScale() {
+      const boardWidthPx = (boardWidth / 100) * window.innerHeight;
+      const availableWidth = window.innerWidth * 0.9;
+      this.scale = Math.min(1, availableWidth / boardWidthPx);
+    },
+  },
   computed: {
     board(): Board {
       return this.game.publicState!.board;
     },
     boardStyle(): Record<string, string> {
+      const s = this.scale;
+      return {
+        width: `${boardWidth * s}vh`,
+        height: `${boardHeight * s}vh`,
+        position: "relative",
+        transform: s < 1 ? `scale(${s})` : "",
+        transformOrigin: "top left",
+      };
+    },
+    boardBackgroundStyle(): Record<string, string> {
       return {
         width: `${boardWidth}vh`,
         height: `${boardHeight}vh`,
-        position: "relative",
       };
     },
     tiles(): (Tile & { style: Record<string, string> })[] {
@@ -240,12 +266,15 @@ export default defineComponent({
 
 <style lang="scss">
 .board {
+  font-size: 16px;
   position: relative;
   filter: drop-shadow(0px 18px 10px rgba(0, 0, 0, 0.45));
   // transform: perspective(50vh) rotateX(5deg) translateY(-4vh);
 
   .board-background {
-    @include absolute-cover;
+    position: absolute;
+    top: 0;
+    left: 0;
     background-image: url("../../assets/board-background.png");
     background-size: cover;
     animation: fade-in 1600ms;
