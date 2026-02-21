@@ -9,6 +9,11 @@
 #toast-container > .toast-warning {
   background-image: none !important;
 }
+#toast-container > .toast-error {
+  background-color: #e83030;
+  color: #fff !important;
+  font-family: $font-family-regular;
+}
 #toast-container > div {
   @include pillow;
   padding: 0.4rem 0.8rem;
@@ -65,8 +70,6 @@
 }
 .toast-error {
   background-color: #e83030;
-  color: #fff !important;
-  font-family: $font-family-regular;
 }
 .toast-info {
   background-color: #c2d1e9;
