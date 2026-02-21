@@ -21,5 +21,17 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("~@/assets/old-world-map.jpg") center / cover no-repeat;
+    opacity: 0.4;
+    mix-blend-mode: soft-light;
+    filter: saturate(0.4);
+    pointer-events: none;
+  }
 }
 </style>
