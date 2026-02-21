@@ -1,55 +1,69 @@
 <template>
-  <div class="game-generator">
-    <h1>CATÁN</h1>
-
-    <h2>Jugadores</h2>
-    <template v-if="players.length > 0">
-      <div
-        class="player"
-        :class="[
-          `player-${player.id}`,
-          { 'player-active': player.id === activePlayerId },
-        ]"
-        v-for="player in players"
-        :key="player.id"
-      >
-        <player-picture :player="player" />
-        {{ player.name }}
+  <div class="game-generator screen">
+    <screen-title />
+    <div class="menu-content">
+      <div class="generator-body">
+        <h2>Jugadores</h2>
+        <template v-if="players.length > 0">
+          <div
+            class="player"
+            :class="[
+              `player-${player.id}`,
+              { 'player-active': player.id === activePlayerId },
+            ]"
+            v-for="player in players"
+            :key="player.id"
+          >
+            <player-picture :player="player" />
+            {{ player.name }}
+            <button
+              class="btn-remove-player"
+              @click="removePlayer(player.id)"
+              title="Quitar jugador"
+            >
+              <X :size="14" :stroke-width="2" />
+            </button>
+          </div>
+        </template>
+        <form
+          v-if="players.length < 4 && activePlayerId === null"
+          @submit.prevent="createPlayer()"
+        >
+          <input type="text" v-model="creatingPlayerName" autofocus />
+          <button type="submit">
+            <UserPlus :size="16" :stroke-width="1.5" /> Agregar jugador
+          </button>
+        </form>
+        <div class="option-row">
+          <input type="checkbox" id="autocollect" v-model="autoCollect" />
+          <label for="autocollect">Recolectar recursos automáticamente</label>
+        </div>
+        <div class="game-id">
+          ID de partida: <code>{{ gameId }}</code>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost" @click="goBack()">
+            <ArrowLeft :size="16" :stroke-width="1.5" /> Cancelar
+          </button>
+          <button :disabled="players.length < 3" @click="startGame()">
+            <Play :size="16" :stroke-width="1.5" /> Comenzar partida
+          </button>
+        </div>
       </div>
-    </template>
-    <form
-      v-if="players.length < 4 && activePlayerId === null"
-      @submit.prevent="createPlayer()"
-    >
-      <input type="text" v-model="creatingPlayerName" autofocus />
-      <button tpye="submit">Agregar jugador</button>
-    </form>
-    <div>
-      <input type="checkbox" id="autocollect" v-model="autoCollect" /><label
-        for="autocollect"
-        >Recolectar recursos automáticamente</label
-      >
-    </div>
-    <div class="game-id">
-      ID de partida: <code>{{ gameId }}</code>
-    </div>
-    <div>
-      <button @click="goBack()">Cancelar</button>
-      <button :disabled="players.length < 3" @click="startGame()">
-        Comenzar partida
-      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { UserPlus, ArrowLeft, Play, X } from "lucide-vue-next";
 
 import * as api from "@/api/actions";
 import PlayerPicture from "@/components/Elements/PlayerPicture.vue";
+import ScreenTitle from "@/components/Elements/ScreenTitle.vue";
 
 export default defineComponent({
-  components: { PlayerPicture },
+  components: { PlayerPicture, ScreenTitle, UserPlus, ArrowLeft, Play, X },
   name: "NotStartedGameView",
   inject: ["game"],
   data: () => ({
@@ -73,6 +87,10 @@ export default defineComponent({
     },
     createPlayer() {
       api.addPlayerToGame(this.game.gameId, this.creatingPlayerName);
+      this.creatingPlayerName = "";
+    },
+    removePlayer(playerId: number) {
+      api.removePlayerFromGame(this.game.gameId, playerId);
     },
     startGame() {
       api.startGame(this.game.gameId, this.autoCollect);
@@ -88,11 +106,18 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
 
-  h1 {
-    font-size: 3rem;
-    font-weight: 600;
-    letter-spacing: 0.2rem;
-    margin-bottom: 0.5rem;
+  .menu-content {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 14rem;
+  }
+
+  .generator-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: menu-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
   }
 
   h2 {
@@ -120,26 +145,51 @@ export default defineComponent({
     .player-picture {
       margin-right: 1rem;
     }
+
+    .btn-remove-player {
+      all: unset;
+      cursor: pointer;
+      margin-left: 0.75rem;
+      padding: 0.2rem;
+      opacity: 0.35;
+      transition: opacity 200ms ease;
+      display: inline-flex;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
   }
 
-  button {
-    background-color: $secondary-background-color;
+  .option-row {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
   }
 
-  button,
-  input {
-    margin-top: 2rem;
+  form {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+
+    input[type="text"] {
+      font-family: "Bona Nova", Georgia, serif;
+      font-size: 1.1em;
+      width: 10rem;
+    }
   }
 
   button,
   input[type="text"] {
-    padding: 0.6rem 1rem;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.65rem 1.2rem;
   }
 
-  input[type="text"] {
-    width: 8rem;
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
   }
 }
 </style>

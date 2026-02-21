@@ -1,8 +1,8 @@
 <template>
-  <div class="game-view">
-    <template v-if="!game.gameState"
-      ><div class="loading">Cargando...</div></template
-    >
+  <div class="app-view">
+    <template v-if="!game.gameState">
+      <div class="loading">Cargando...</div>
+    </template>
     <template v-else>
       <game-generator v-if="!gameStarted" />
       <playtable v-else />
@@ -38,6 +38,19 @@ export default defineComponent({
       return this.game.started;
     },
   },
+  watch: {
+    gameStarted(started: boolean) {
+      if (started) {
+        document.body.classList.remove("show-map-bg");
+      }
+    },
+  },
+  mounted() {
+    document.body.classList.add("show-map-bg");
+  },
+  beforeUnmount() {
+    document.body.classList.remove("show-map-bg");
+  },
   async created() {
     try {
       await this.game.subscribeToUpdates();
@@ -56,16 +69,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.game-view {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-
-  .loading {
-    font-size: 1.35rem;
-  }
+.app-view .loading {
+  font-size: 1.35rem;
 }
 </style>

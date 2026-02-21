@@ -34,6 +34,17 @@ export const addPlayerToGame = async (
   });
 };
 
+export const removePlayerFromGame = async (
+  gameId: string,
+  playerId: number
+): Promise<void> => {
+  await axios.request({
+    baseURL,
+    method: "DELETE",
+    url: `/game/${gameId}/player/${playerId}`,
+  });
+};
+
 export const startGame = async (
   gameId: string,
   autoCollect: boolean
