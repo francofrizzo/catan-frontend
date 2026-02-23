@@ -34,7 +34,7 @@ export default defineComponent({
 
 <style lang="scss">
 .port {
-  @include board-piece-image(url("../../assets/dock.png"));
+  @include board-piece-image(url("../../assets/dock.webp"));
   background-position: center bottom;
 
   display: flex;
@@ -57,8 +57,9 @@ export default defineComponent({
   }
 
   .port-icon {
-    font-size: 1.1rem;
+    font-size: 1.54rem;
     filter: drop-shadow(0 2px 3px black);
+    margin-bottom: -10%;
   }
 }
 </style>

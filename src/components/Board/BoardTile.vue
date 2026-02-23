@@ -125,7 +125,7 @@ export default defineComponent({
 
 @each $tile-type in ("desert", "brick", "lumber", "wool", "grain", "ore") {
   .tile-#{$tile-type} {
-    background-image: url("../../assets/tile-#{$tile-type}.png");
+    background-image: url("../../assets/tile-#{$tile-type}.webp");
   }
 }
 
@@ -173,7 +173,7 @@ export default defineComponent({
 .tile-thief {
   @include board-element;
   @include board-piece-shadow;
-  @include board-piece-image(url("../../assets/thief.png"));
+  @include board-piece-image(url("../../assets/thief.webp"));
   @include board-piece-animation;
   @include absolute-center($thief-size, (4/3) * $thief-size);
   margin-top: -(5/6) * $thief-size;

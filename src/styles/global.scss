@@ -7,9 +7,15 @@ body {
 }
 
 html {
-  @media (max-width: 1200px) { font-size: 14px; }
-  @media (max-width: 900px) { font-size: 12px; }
-  @media (max-width: 600px) { font-size: 10px; }
+  @media (max-width: 1200px) {
+    font-size: 14px;
+  }
+  @media (max-width: 900px) {
+    font-size: 12px;
+  }
+  @media (max-width: 600px) {
+    font-size: 10px;
+  }
 }
 
 body.show-map-bg::before {

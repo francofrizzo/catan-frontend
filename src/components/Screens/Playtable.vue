@@ -87,21 +87,21 @@ export default defineComponent({
 
     await Promise.all(
       [
-        ...colors.map((color) => require(`@/assets/road-${color}-front.png`)),
-        ...colors.map((color) => require(`@/assets/road-${color}-side.png`)),
-        ...colors.map((color) => require(`@/assets/road-${color}-side-2.png`)),
-        ...colors.map((color) => require(`@/assets/settlement-${color}.png`)),
-        ...colors.map((color) => require(`@/assets/city-${color}.png`)),
+        ...colors.map((color) => require(`@/assets/road-${color}-front.webp`)),
+        ...colors.map((color) => require(`@/assets/road-${color}-side.webp`)),
+        ...colors.map((color) => require(`@/assets/road-${color}-side-2.webp`)),
+        ...colors.map((color) => require(`@/assets/settlement-${color}.webp`)),
+        ...colors.map((color) => require(`@/assets/city-${color}.webp`)),
         ...resources.map((resource) =>
-          require(`@/assets/tile-${resource}.png`)
+          require(`@/assets/tile-${resource}.webp`)
         ),
-        ...resources.map((resource) => require(`@/assets/${resource}.png`)),
-        require("@/assets/tile-desert.png"),
-        require("@/assets/dock.png"),
-        require("@/assets/thief.png"),
-        require("@/assets/someone.png"),
-        require("@/assets/board-background.png"),
-        ...[1, 2, 3, 4, 5, 6].map((i) => require(`@/assets/dice-${i}.png`)),
+        ...resources.map((resource) => require(`@/assets/${resource}.webp`)),
+        require("@/assets/tile-desert.webp"),
+        require("@/assets/dock.webp"),
+        require("@/assets/thief.webp"),
+        require("@/assets/someone.webp"),
+        require("@/assets/board-background.webp"),
+        ...[1, 2, 3, 4, 5, 6].map((i) => require(`@/assets/dice-${i}.webp`)),
       ].map((url) => preloadImage(url))
     );
     this.assetsLoaded = true;

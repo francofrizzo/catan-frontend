@@ -2,6 +2,8 @@ import axios from "axios";
 
 import GameState from "@/models/GameState";
 
+axios.defaults.withCredentials = true;
+
 const baseURL = process.env.VUE_APP_API_BASE_URL;
 
 export const createGame = async (): Promise<string> => {

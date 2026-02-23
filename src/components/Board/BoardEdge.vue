@@ -109,23 +109,27 @@ export default defineComponent({
     @include board-piece-animation-active;
   }
 
+  &.edge-direction-0 {
+    transform: translateY(-2%);
+  }
+
   @each $player, $color-name in $player-color-names {
     &.edge-player-#{$player} {
       &.edge-road,
       &.edge-building-road {
         &.edge-direction-0 {
           @include board-piece-image(
-            url("../../assets/road-#{$color-name}-front.png")
+            url("../../assets/road-#{$color-name}-front.webp")
           );
         }
         &.edge-direction-1 {
           @include board-piece-image(
-            url("../../assets/road-#{$color-name}-side.png")
+            url("../../assets/road-#{$color-name}-side.webp")
           );
         }
         &.edge-direction-2 {
           @include board-piece-image(
-            url("../../assets/road-#{$color-name}-side-2.png")
+            url("../../assets/road-#{$color-name}-side-2.webp")
           );
         }
       }

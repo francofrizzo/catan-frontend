@@ -19,11 +19,11 @@ export default defineComponent({
 
 <style lang="scss">
 $resource-images: (
-  "brick": "brick.png",
-  "grain": "grain.png",
-  "lumber": "lumber.png",
-  "ore": "ore.png",
-  "wool": "wool.png",
+  "brick": "brick.webp",
+  "grain": "grain.webp",
+  "lumber": "lumber.webp",
+  "ore": "ore.webp",
+  "wool": "wool.webp",
 );
 
 .resource-icon {

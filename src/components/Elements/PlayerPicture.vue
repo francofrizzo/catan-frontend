@@ -27,7 +27,7 @@ export default defineComponent({
 <style lang="scss">
 .player-picture {
   @include round($player-picture-size);
-  background-image: url("../../assets/someone.png");
+  background-image: url("../../assets/someone.webp");
   background-size: cover;
   border-width: $player-picture-border-width;
   border-style: solid;

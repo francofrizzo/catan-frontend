@@ -221,20 +221,20 @@ export default defineComponent({
         .road {
           @include board-piece-shadow;
           @include board-piece-image(
-            url("../../assets/road-#{$color-name}-side-2.png")
+            url("../../assets/road-#{$color-name}-side-2.webp")
           );
           transform: rotate(60deg);
         }
         .settlement {
           @include board-piece-shadow;
           @include board-piece-image(
-            url("../../assets/settlement-#{$color-name}.png")
+            url("../../assets/settlement-#{$color-name}.webp")
           );
         }
         .city {
           @include board-piece-shadow;
           @include board-piece-image(
-            url("../../assets/city-#{$color-name}.png")
+            url("../../assets/city-#{$color-name}.webp")
           );
         }
       }

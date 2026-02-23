@@ -275,7 +275,7 @@ export default defineComponent({
     position: absolute;
     top: 0;
     left: 0;
-    background-image: url("../../assets/board-background.png");
+    background-image: url("../../assets/board-background.webp");
     background-size: cover;
     animation: fade-in 1600ms;
   }

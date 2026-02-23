@@ -64,7 +64,7 @@ export default defineComponent({
 
 @each $i in (1, 2, 3, 4, 5, 6) {
   .dice-#{$i} .dice-inner {
-    background-image: url("../../assets/dice-#{$i}.png");
+    background-image: url("../../assets/dice-#{$i}.webp");
 
     background-size: contain;
   }

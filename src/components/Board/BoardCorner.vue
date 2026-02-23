@@ -86,11 +86,13 @@ export default defineComponent({
   &.corner-settlement,
   &.corner-building-settlement:hover {
     @include board-piece-animation-active(90%);
+    transform: translateY(-10%);
   }
 
   &.corner-city,
   &.corner-building-city:hover {
     @include board-piece-animation-active;
+    transform: translateY(-27%);
   }
 
   @each $player, $color-name in $player-color-names {
@@ -98,13 +100,15 @@ export default defineComponent({
       &.corner-settlement,
       &.corner-building-settlement {
         @include board-piece-image(
-          url("../../assets/settlement-#{$color-name}.png")
+          url("../../assets/settlement-#{$color-name}.webp")
         );
       }
 
       &.corner-city,
       &.corner-building-city:hover {
-        @include board-piece-image(url("../../assets/city-#{$color-name}.png"));
+        @include board-piece-image(
+          url("../../assets/city-#{$color-name}.webp")
+        );
       }
     }
   }

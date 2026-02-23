@@ -86,8 +86,8 @@ $construction-button-padding: 0.5rem;
 $construction-button-icon-size: 2.4rem;
 
 $board-height: 90vh; // in vh -- this must coincide with boardHeight variable in GameBoard.vue
-$corner-size: 6 * ($board-height / 100);
-$edge-size: 2.75 * ($board-height / 100);
+$corner-size: 8.4 * ($board-height / 100);
+$edge-size: 2.625 * ($board-height / 100);
 $port-size: 8.5 * ($board-height / 100);
 $tile-number-size: 6.75 * ($board-height / 100);
 $thief-size: 6.5 * ($board-height / 100);
