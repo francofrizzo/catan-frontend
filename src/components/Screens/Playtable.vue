@@ -127,6 +127,11 @@ export default defineComponent({
     position: absolute;
     z-index: 1;
     padding: $player-area-padding;
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
 
     &.player-area-top-left {
       top: 0;
